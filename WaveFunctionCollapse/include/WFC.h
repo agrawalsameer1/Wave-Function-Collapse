@@ -31,16 +31,21 @@ public:
 	// It also contains an array of all its adjacent neighbors.
 	struct Element
 	{
-		Wave wave;
+		Wave* wave;
 		vector<Element> neighbors[4]; // each Element can have a maximum of 4 adjacent neighbors, obviously
 	};
 
 	/* *************FUNCTIONS************* */
 
 	// The "driver function". It starts the whole process.
-	void collapse();
+	void wfc();
+	// Collapses a Wave to a single possible Pattern.
+	void observe(Wave* wave);
 	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit :(
 	void propagate();
 	// Returns a vector of all possible next cells.
 	void findNextCell();
+
+private:
+	vector<vector<Element>> output;
 };
