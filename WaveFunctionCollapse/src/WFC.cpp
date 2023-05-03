@@ -1,3 +1,10 @@
-#include <iostream>
+#include "../include/PPM.h"
 
-// Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
+int main(){
+    PPMImage *image = new PPMImage();
+    image->readPPM("/Users/sameeragrawal/Desktop/hello.ppm");
+
+    std::cout << image->y << " x " << image->x << "\n";
+
+    std::cout << *image << "\n";
+}
