@@ -12,6 +12,7 @@ std::string PPMPixel::toString() {
     return st;
 }
 
+
 void PPMImage::readPPM(const char *filename) {
     char buff[16];
     FILE *fp;
