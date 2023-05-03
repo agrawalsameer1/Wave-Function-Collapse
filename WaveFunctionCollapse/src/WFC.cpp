@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <random>
 #include "WFC.h"
+#include "../include/PPM.h"
 
 // Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
 
@@ -29,4 +30,12 @@ void observe(Wave* wave)
 	std::shuffle(std::begin(cards_), std::end(cards_), rng);
 	// ...and pick a Pattern.
 	int randomIndex = rand() % SP.size();
+
+int main(){
+    PPMImage *image = new PPMImage();
+    image->readPPM("/Users/sameeragrawal/Desktop/hello.ppm");
+
+    std::cout << image->y << " x " << image->x << "\n";
+
+    std::cout << *image << "\n";
 }
