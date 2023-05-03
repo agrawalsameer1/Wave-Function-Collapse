@@ -22,8 +22,7 @@ public:
 	// The Wave also contains information about its Shannon entropy: essentially, the number of possible patterns.
 	struct Wave
 	{
-		vector<Pattern> domain;
-		bool[] possible;
+		bool[] domain;
 		int entropy;
 	};
 
@@ -46,6 +45,11 @@ public:
 	// Returns a vector of all possible next cells.
 	void findNextCell();
 
-private:
+
+	/* *************FIELDS************* */
+
+	// Defines the final pattern arrangement after the algorithm is done.
 	vector<vector<Element>> output;
+	// An array of all patterns extracted from the source image.
+	vector<Pattern> patterns;
 };
