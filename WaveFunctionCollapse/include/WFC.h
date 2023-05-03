@@ -23,7 +23,7 @@ public:
 	struct Wave
 	{
 		vector<Pattern> domain;
-		bool[] possible;
+		bool possible[10];
 		int entropy;
 	};
 
