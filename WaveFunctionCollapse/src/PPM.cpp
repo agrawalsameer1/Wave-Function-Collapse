@@ -1,5 +1,9 @@
 #include "../include/PPM.h"
 
+bool PPMPixel::operator==(PPMPixel pix) {
+    return pix.red==red && pix.green==green && pix.blue==blue;
+}
+
 std::string PPMPixel::toString() {
     std::string st = "";
     st += '(';
@@ -12,6 +16,9 @@ std::string PPMPixel::toString() {
     return st;
 }
 
+void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
+    data[x*ycoord+xcoord] = pix;
+}
 
 void PPMImage::readPPM(const char *filename) {
     char buff[16];
@@ -89,6 +96,22 @@ void PPMImage::readPPM(const char *filename) {
 
 PPMPixel PPMImage::pixelAt(int xcoord, int ycoord) {
     return *(data + (sizeof(PPMPixel)*(x*ycoord+xcoord)));
+}
+
+bool PPMImage::operator==(PPMImage img) {
+    if (x != img.x || y != img.y) {
+        return false;
+    }
+    else {
+        for (int i = 0; i < img.y; i++) {
+            for (int j = 0; j < img.x; j++) {
+                if (!(img.pixelAt(j,i) == pixelAt(j,i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, PPMImage img) {
