@@ -51,6 +51,11 @@ public:
 	// Returns a vector of all possible next cells.
 	void findNextCell();
 
-private:
+
+	/* *************FIELDS************* */
+
+	// Defines the final pattern arrangement after the algorithm is done.
 	vector<vector<Element>> output;
+	// An array of all patterns extracted from the source image.
+	vector<Pattern> patterns;
 };
