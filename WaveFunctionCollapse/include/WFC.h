@@ -16,7 +16,7 @@ public:
 	struct Pattern
 	{
 		PPMImage pixels;
-		int weight;
+		int id;
 		int N;
 	};
 
@@ -24,9 +24,7 @@ public:
 	// The Wave also contains information about its Shannon entropy: essentially, the number of possible patterns.
 	struct Wave
 	{
-		vector<Pattern> domain;
-		HashTable* rules;
-		//bool possible[];
+		vector<Pattern> possiblePatterns;
 		int entropy;
 	};
 
@@ -43,7 +41,7 @@ public:
 	// The "driver function". It starts the whole process.
 	void wfc();
 	// Generate adjacency rules from an input image
-	HashTable* ruleGeneration(PPMImage img);
+	HashTable* ruleGeneration(PPMImage img, int N);
 	// Collapses a Wave to a single possible Pattern.
 	void observe(Wave* wave);
 	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit :(

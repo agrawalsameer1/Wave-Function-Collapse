@@ -17,22 +17,24 @@ void WFC::wfc()
 }
 
 // Generate adjacency rules from input img
-HashTable* WFC::ruleGeneration(PPMImage img) {
+HashTable* WFC::ruleGeneration(PPMImage img, int N) {
     HashTable rules[4];
 
-    // Define array to store all 3x3 tiles in image
-    Pattern patterns[(img.x-2)*(img.y-2)];
-    int len = (img.x-2)*(img.y-2);
+    // Define array to store all NxN tiles in image
+    Pattern patterns[(img.x-(N-1))*(img.y-(N-1))];
+    int len = (img.x-N+1)*(img.y-N+1);
 
-    for (int i = 0; i < img.y-3; i++) {
-        for (int j = 0; j < img.x-3; j++) {
+    for (int i = 0; i < img.y-N; i++) {
+        for (int j = 0; j < img.x-N; j++) {
             Pattern* pattern = new Pattern();
-            for (int k = 0; k < 3; k++) {
-                for (int l = 0; l < 3; l++) {
+            pattern->id = (i*img.x+j);
+            pattern->N = N;
+            for (int k = 0; k < N; k++) {
+                for (int l = 0; l < N; l++) {
                     pattern->pixels.writePixel(l,k,img.pixelAt(j+l,i+k));
                 }
             }
-            patterns[i*(img.x-2)+j] = *pattern;
+            patterns[i*(img.x-N+1)+j] = *pattern;
         }
     }
 
@@ -78,24 +80,16 @@ HashTable* WFC::ruleGeneration(PPMImage img) {
         for (int j = 0; j < len; j++) {
             if (patterns[j].pixels == topRules->get(i).head->pat.pixels) {
                 if (j > img.x) { // If we're on the second row or below, we can have a pattern above
-                    if (!(topRules->get(i).contains(patterns[j-img.x]))) { // If the adjacent pattern above isn't already in the rules
-                        topRules->insert(patterns[j-img.x]);
-                    }
+                    topRules->insert(patterns[j-img.x]);
                 }
                 if ((j%img.x) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
-                    if (!(leftRules->get(i).contains(patterns[j-1]))) { // If the adjacent pattern to the left isn't already in the rules
-                        leftRules->insert(patterns[j-1]);
-                    }
+                    leftRules->insert(patterns[j+1]); 
                 }
                 if ((j%(img.x-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
-                    if (!(rightRules->get(i).contains(patterns[j+1]))) { // If the adjacent pattern to the right isn't already in the rules
-                        rightRules->insert(patterns[j+1]); 
-                    }
+                    rightRules->insert(patterns[j+1]); 
                 }
                 if (j < (len-img.x)) { // If we're at least one row before the end, we can have a pattern below
-                    if (!(bottomRules->get(i).contains(patterns[j+img.x]))) { // If the adjacent pattern below isn't already in the rules
-                        bottomRules->insert(patterns[j+img.x]);
-                    }
+                    bottomRules->insert(patterns[j+img.x]);
                 }
             }
         }
