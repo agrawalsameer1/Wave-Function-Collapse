@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <random>
 #include "PPM.h"
 #include "HashTable.h"
 
@@ -41,19 +42,24 @@ public:
 	// The "driver function". It starts the whole process.
 	void wfc();
 	// Generate adjacency rules from an input image
-	HashTable* ruleGeneration(PPMImage img, int N);
+	void ruleGeneration(PPMImage img, int N);
+	// Generate output image 
+	void generateOutput(int N);
 	// Collapses a Wave to a single possible Pattern.
-	void observe(Wave* wave);
+	void observe();
 	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit :(
-	void propagate();
-	// Returns a vector of all possible next cells.
-	void findNextCell();
+	void propagate(int id);
 
 
 	/* *************FIELDS************* */
 
 	// Defines the final pattern arrangement after the algorithm is done.
-	vector<vector<Element>> output;
+	vector<vector<Pattern>> output;
+	// Defines dimensions of output
+	int outputX;
+	int outputY;
 	// An array of all patterns extracted from the source image.
 	vector<Pattern> patterns;
+	// A hash table of all adjacency rules extracted from source image.
+	vector<HashTable> adjacencyRules;
 };

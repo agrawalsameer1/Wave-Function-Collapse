@@ -64,11 +64,11 @@ LinkedList HashTable::get(int index) {
 
 // Returns an Element from the Hash Table by key.
 // If the Element isn't found, a null pointer is returned.
-Element * HashTable::get(WFC::Pattern pat)
+LinkedList HashTable::get(WFC::Pattern pat)
 {
     for (int i = 0; i < filled; i++) {
         if (array[i].head->pat.pixels == pat.pixels) {
-            return array[i].head;
+            return array[i];
         }
     }
 }

@@ -27,7 +27,7 @@ public:
     
     // Returns an item from the Hash Table by key.
     // If the item isn't found, a null pointer is returned.
-    Element* get(WFC::Pattern pat);
+    LinkedList get(WFC::Pattern pat);
 
 
     LinkedList get(int index);

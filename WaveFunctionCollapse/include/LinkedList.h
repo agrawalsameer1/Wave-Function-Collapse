@@ -6,10 +6,10 @@
 #include "../include/WFC.h"
 using namespace std;
 
-struct Element
+struct node
 {
     WFC::Pattern pat;
-    Element * next;
+    node * next;
 };
 
 //*****************************************************************
@@ -19,7 +19,7 @@ class LinkedList
 {
 public:
     // Head is a reference to a list of data nodes.
-    Element * head;
+    node* head;
     
     // Length is the number of data nodes.
     int length;
@@ -33,7 +33,7 @@ public:
     bool contains(WFC::Pattern pat);
     
     // Inserts an item at the end of the list.
-    void insert( Element * newElement );
+    void insert(node* newElement );
     
     // Removes an Element from the list by item key.
     // Returns true if the operation is successful.
@@ -42,7 +42,7 @@ public:
     // Searches for an item by its key.
     // Returns a reference to first match.
     // Returns a NULL pointer if no match is found.
-    Element* get(WFC::Pattern Pat);
+    node* get(WFC::Pattern Pat);
     
     // Returns the length of the list.
     int getLength();
