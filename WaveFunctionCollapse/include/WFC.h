@@ -44,11 +44,17 @@ public:
 	// Generate adjacency rules from an input image
 	void ruleGeneration(PPMImage img, int N);
 	// Generate output image 
-	void generateOutput(int N);
-	// Collapses a Wave to a single possible Pattern.
-	void observe();
-	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit :(
+	void generateOutput(int N, int X, int Y);
+	// Collapses a Wave to a single possible Pattern. Returns id of final collapsed element.
+	int observe();
+	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit. :(
 	void propagate(int id);
+	// Returns whether algorithm has completed
+	bool completed();
+	// Returns whether there is a contradiction: whether there are 0 possible patterns for an element in the output
+	bool contradiction();
+	// Collapse function, puts all functions together
+	void collapse(PPMImage input, int N, int outputX, int outputY);
 
 
 	/* *************FIELDS************* */

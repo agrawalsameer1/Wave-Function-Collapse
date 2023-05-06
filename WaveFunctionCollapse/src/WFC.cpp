@@ -8,12 +8,7 @@
 
 void WFC::wfc()
 {
-	// Define grid position
-	int x = 0, y = 0;
-
-	// Start with the first Element in the output
-	observe(output[y][x].wave);
-
+    ;
 }
 
 // Generate adjacency rules from input img
@@ -98,7 +93,9 @@ void WFC::ruleGeneration(PPMImage img, int N) {
 }
 
 // Generate output image
-void WFC::generateOutput(int N) {
+void WFC::generateOutput(int N, int X, int Y) {
+    outputX = X;
+    outputY = Y;
     for (int j = 0; j < outputY-N+1; j++) {
         for (int k = 0; k < outputX-N+1; k++) {
             output.push_back(patterns);
@@ -204,7 +201,7 @@ void WFC::propagate(int id) {
     }
 }
 
-void WFC::observe()
+int WFC::observe()
 {
     std::random_device rd; 
     std::mt19937 gen(rd());
@@ -229,6 +226,41 @@ void WFC::observe()
     newOutput.push_back(output[smallestId][choice]);
 
     output[smallestId] = newOutput;
+    return smallestId;
+}
+
+bool WFC::completed() {
+    for (int i = 0; i < output.size(); i++) {
+        if (output[i].size() > 1) { // If an element has more than one possible pattern
+            return false;
+        }
+    }
+    return true;
+}
+
+bool WFC::contradiction() {
+    for (int i = 0; i < output.size(); i++) {
+        if (output[i].size() == 0) { // If an element has no possible patterns
+            return true;
+        }
+    }
+    return false;
+}
+
+void WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
+    bool contradicts = true;
+    bool complete = false;
+    ruleGeneration(input, N);
+
+    while (contradicts) {            
+        generateOutput(N, outputX, outputY); // If there is a contradiction, reset the output
+        while (!(complete)) {
+            int collapsedId = observe();
+            propagate(collapsedId);
+            contradicts = contradiction();
+            complete = completed();
+        }
+    }
 }
 
 int main() {
