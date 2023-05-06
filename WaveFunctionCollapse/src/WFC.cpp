@@ -118,17 +118,6 @@ void WFC::propagate(int id) {
                 i++;
             }
         }
-        
-        i = 0;
-        while (i < output[id-outputX].size()) {
-            possibles = adjacencyRules[3].get(output[id-outputX][i]);
-            if (possibles.contains(pat) == false) {
-                output[id-outputX].erase(output[id-outputX].begin() + i); // Delete all patterns which can't have the one we just collapsed below them
-            }
-            else {
-                i++;
-            }
-        }
     }
     if ((id%outputX) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
         int i = 0;
@@ -136,17 +125,6 @@ void WFC::propagate(int id) {
         while (i < output[id-1].size()) {
             if (possibles.contains(output[id-1][i]) == false) {
                 output[id-1].erase(output[id-1].begin() + i); // Delete all patterns that can't be to the left of the one we just collapsed
-            }
-            else {
-                i++;
-            }
-        }
-
-        i = 0;
-        while (i < output[id-1].size()) {
-            possibles = adjacencyRules[2].get(output[id-1][i]);
-            if (possibles.contains(pat) == false) {
-                output[id-1].erase(output[id-1].begin() + i); // Delete all patterns which can't have the one we just collapsed to the right of them
             }
             else {
                 i++;
@@ -164,17 +142,6 @@ void WFC::propagate(int id) {
                 i++;
             }
         }
-
-        i = 0;
-        while (i < output[id+1].size()) {
-            possibles = adjacencyRules[1].get(output[id+1][i]);
-            if (possibles.contains(pat) == false) {
-                output[id+1].erase(output[id+1].begin() + i); // Delete all patterns which can't have the one we just collapsed to the left of them
-            }
-            else {
-                i++;
-            }
-        }
     }
     if (id < (output.size()-outputX)) { // If we're at least one row before the end, we can have a pattern below
         int i = 0;
@@ -182,17 +149,6 @@ void WFC::propagate(int id) {
         while (i < output[id+outputX].size()) {
             if (possibles.contains(output[id+outputX][i]) == false) {
                 output[id+outputX].erase(output[id+outputX].begin() + i); // Delete all patterns that can't be below the one we just collapsed
-            }
-            else {
-                i++;
-            }
-        }
-
-        i = 0;
-        while (i < output[id+outputX].size()) {
-            possibles = adjacencyRules[0].get(output[id+outputX][i]);
-            if (possibles.contains(pat) == false) {
-                output[id+outputX].erase(output[id+outputX].begin() + i); // Delete all patterns which can't have the one we just collapsed above them
             }
             else {
                 i++;
