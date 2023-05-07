@@ -16,11 +16,14 @@ std::string PPMPixel::toString() {
     return st;
 }
 
-void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
-    data[x*ycoord+xcoord] = pix;
+PPMImage::PPMImage(int X, int Y) {
+    x = X;
+    y = Y;
+    PPMPixel* j = new PPMPixel();
+    data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
 }
 
-void PPMImage::readPPM(const char *filename) {
+PPMImage::PPMImage(const char *filename) {
     char buff[16];
     FILE *fp;
     int c, rgb_comp_color;
@@ -76,7 +79,7 @@ void PPMImage::readPPM(const char *filename) {
     ;
 
     //alloc memory form image
-    data = (PPMPixel*)malloc(x * y * sizeof(PPMPixel));
+    data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
     
     //define temp array to hold our pixels
     unsigned char *pixels = new unsigned char[x*y*3];
@@ -92,6 +95,10 @@ void PPMImage::readPPM(const char *filename) {
         i++;
     }
     fclose(fp);
+}
+
+void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
+    data[x*ycoord+xcoord] = pix;
 }
 
 PPMPixel PPMImage::pixelAt(int xcoord, int ycoord) {
@@ -123,4 +130,20 @@ std::ostream& operator<<(std::ostream& os, PPMImage img) {
         os << "\n";
     }
     return os;
+}
+
+void PPMImage::saveImage(const char *filename) {
+    std::ofstream fout(filename);
+    fout << "P3\n";
+    fout << x << " " << y << "\n";
+    fout << "255\n";
+
+    for (int i = 0; i < y; i++) {
+        for (int j = 0; j < x; j++) {
+            fout << pixelAt(j,i).red << " ";
+            fout << pixelAt(j,i).green << " ";
+            fout << pixelAt(j,i).blue << "   ";
+        }
+    }
+    fout.close();
 }

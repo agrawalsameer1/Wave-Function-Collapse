@@ -27,6 +27,7 @@ public:
 	{
 		vector<Pattern> possiblePatterns;
 		int entropy;
+		bool propagated;
 	};
 
 	// The Element structure defines an NxN region in the new output image.
@@ -47,6 +48,8 @@ public:
 	void generateOutput(int N, int X, int Y);
 	// Collapses a Wave to a single possible Pattern. Returns id of final collapsed element.
 	int observe();
+	// Returns if data has been propagated to every pattern in the output image
+	bool checkPropagation();
 	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit. :(
 	void propagate(int id);
 	// Returns whether algorithm has completed
@@ -55,12 +58,14 @@ public:
 	bool contradiction();
 	// Collapse function, puts all functions together
 	void collapse(PPMImage input, int N, int outputX, int outputY);
+	// Create output PPM Image
+	PPMImage buildOutput();
 
 
 	/* *************FIELDS************* */
 
 	// Defines the final pattern arrangement after the algorithm is done.
-	vector<vector<Pattern>> output;
+	vector<Wave> output;
 	// Defines dimensions of output
 	int outputX;
 	int outputY;

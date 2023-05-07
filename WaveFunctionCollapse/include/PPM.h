@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <string>
+#include <fstream>
 
 #define RGB_COMPONENT_COLOR 255
 
@@ -12,15 +13,17 @@ class PPMPixel{
         bool operator==(PPMPixel pix);
 };
 
-
 class PPMImage {
     public:
         int x, y;
         PPMPixel* data;
 
+        PPMImage(int X, int Y);
+        PPMImage(const char *filename);
         void writePixel(int x, int y, PPMPixel pix);
         void readPPM(const char *filename);
         PPMPixel pixelAt(int xcoord, int ycoord);
         bool operator==(PPMImage img);
+        void saveImage(const char *filename);
         friend std::ostream& operator<<(std::ostream& os, PPMImage img);
 };

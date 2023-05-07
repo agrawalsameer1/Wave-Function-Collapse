@@ -15,10 +15,10 @@ void WFC::wfc()
 void WFC::ruleGeneration(PPMImage img, int N) {
 
     // Extract all NxN tiles from input image
-    for (int i = 0; i < img.y-N; i++) {
-        for (int j = 0; j < img.x-N; j++) {
-            Pattern* pattern = new Pattern();
-            pattern->id = (i*img.x+j);
+    for (int i = 0; i < std::floor(img.y/N); i+=N) {
+        for (int j = 0; j < std::floor(img.x/N); j+=N) {
+            Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
+            pattern->id = ((i*img.x+j)/N);
             pattern->N = N;
             for (int k = 0; k < N; k++) {
                 for (int l = 0; l < N; l++) {
@@ -96,64 +96,109 @@ void WFC::ruleGeneration(PPMImage img, int N) {
 void WFC::generateOutput(int N, int X, int Y) {
     outputX = X;
     outputY = Y;
-    for (int j = 0; j < outputY-N+1; j++) {
-        for (int k = 0; k < outputX-N+1; k++) {
-            output.push_back(patterns);
+    for (int j = 0; j < outputY/N; j++) {
+        for (int k = 0; k < outputX/N; k++) {
+            Wave* w = (Wave*)(malloc(sizeof(Wave)));
+            std::copy(patterns.begin(), patterns.end(), std::back_inserter(w->possiblePatterns));
         }
     }
 }
 
-// Propagate the data after collapsing the element with a specific id
-void WFC::propagate(int id) {
-    WFC::Pattern pat = output[id][0];
+bool WFC::checkPropagation() {
+    for (int i = 0; i < outputY; i++) {
+        for (int j = 0; j < outputX; j++) {
+            if (output[i*outputX+j].propagated == false) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
+// Propagate the data for an element with a specific id
+void WFC::propagate(int id) {
     if (id > outputX) { // If we're on the second row or below, we can have a pattern above
         int i = 0;
-        LinkedList possibles = adjacencyRules[0].get(pat); // Get all possible above patterns for the pattern we just collapsed
-        while (i < output[id-outputX].size()) {
-            if (possibles.contains(output[id-outputX][i]) == false) {
-                output[id-outputX].erase(output[id-outputX].begin() + i); // Delete all patterns that can't be above the one we just collapsed
+        while (i < output[id-outputX].possiblePatterns.size()) {
+            bool possible = false;
+            for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                WFC::Pattern pat = output[id].possiblePatterns[it];
+                LinkedList possibles = adjacencyRules[0].get(pat); // Get all possible above patterns for the pattern we just collapsed
+                if (possibles.contains(output[id-outputX].possiblePatterns[i])) {
+                    possible = true;
+                }
+            }
+            if (!(possible)) {
+                output[id-outputX].possiblePatterns.erase(output[id-outputX].possiblePatterns.begin() + i); // Delete all patterns that can't be above the one we just collapsed
             }
             else {
                 i++;
             }
         }
+        output[id-outputX].propagated = true;
     }
+
     if ((id%outputX) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
         int i = 0;
-        LinkedList possibles = adjacencyRules[1].get(pat);
-        while (i < output[id-1].size()) {
-            if (possibles.contains(output[id-1][i]) == false) {
-                output[id-1].erase(output[id-1].begin() + i); // Delete all patterns that can't be to the left of the one we just collapsed
+        while (i < output[id-1].possiblePatterns.size()) {
+            bool possible = false;
+            for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                WFC::Pattern pat = output[id].possiblePatterns[it];
+                LinkedList possibles = adjacencyRules[1].get(pat); // Get all possible patterns to the left of the pattern we just collapsed
+                if (possibles.contains(output[id-1].possiblePatterns[i])) {
+                    possible = true;
+                }
+            }
+            if (!(possible)) {
+                output[id-1].possiblePatterns.erase(output[id-1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the left of the one we just collapsed
             }
             else {
                 i++;
             }
         }
+        output[id-1].propagated = true;
     }
-    if ((id%(outputX-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+
+    if (id%(outputX-1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
         int i = 0;
-        LinkedList possibles = adjacencyRules[2].get(pat);
-        while (i < output[id+1].size()) {
-            if (possibles.contains(output[id+1][i]) == false) {
-                output[id+1].erase(output[id+1].begin() + i);  // Delete all patterns that can't be to the right of the one we just collapsed
+        while (i < output[id+1].possiblePatterns.size()) {
+            bool possible = false;
+            for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                WFC::Pattern pat = output[id].possiblePatterns[it];
+                LinkedList possibles = adjacencyRules[2].get(pat); // Get all possible patterns to the right of the pattern we just collapsed
+                if (possibles.contains(output[id+1].possiblePatterns[i])) {
+                    possible = true;
+                }
+            }
+            if (!(possible)) {
+                output[id+1].possiblePatterns.erase(output[id+1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the right of the one we just collapsed
             }
             else {
                 i++;
             }
         }
+        output[id+1].propagated = true;
     }
-    if (id < (output.size()-outputX)) { // If we're at least one row before the end, we can have a pattern below
+
+    if (id < output.size()-outputX) { // If we're at least one row before the end, we can have a pattern below
         int i = 0;
-        LinkedList possibles = adjacencyRules[3].get(pat);
-        while (i < output[id+outputX].size()) {
-            if (possibles.contains(output[id+outputX][i]) == false) {
-                output[id+outputX].erase(output[id+outputX].begin() + i); // Delete all patterns that can't be below the one we just collapsed
+        while (i < output[id+outputX].possiblePatterns.size()) {
+            bool possible = false;
+            for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                WFC::Pattern pat = output[id].possiblePatterns[it];
+                LinkedList possibles = adjacencyRules[3].get(pat); // Get all possible below patterns for the pattern we just collapsed
+                if (possibles.contains(output[id+outputX].possiblePatterns[i])) {
+                    possible = true;
+                }
+            }
+            if (!(possible)) {
+                output[id+outputX].possiblePatterns.erase(output[id+outputX].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
             }
             else {
                 i++;
             }
         }
+        output[id+outputX].propagated = true;
     }
 }
 
@@ -163,31 +208,31 @@ int WFC::observe()
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(0, output.size());
     int choice2 = distr(gen);
-    int smallestLength = output[choice2].size();
+    int smallestLength = output[choice2].possiblePatterns.size();
     int smallestId = choice2;
 
     for (int i = 0; i < output.size(); i++) {
-        if (output[i].size() < smallestLength && output[i].size() > 1) {
+        if (output[i].possiblePatterns.size() < smallestLength && output[i].possiblePatterns.size() > 1) {
             smallestId = i;
-            smallestLength = output[i].size();
+            smallestLength = output[i].possiblePatterns.size();
         }
     }
 
     std::random_device rd; 
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(0, output[smallestId].size());
+    std::uniform_int_distribution<> distr(0, output[smallestId].possiblePatterns.size());
     int choice = distr(gen);
 
     vector<Pattern> newOutput;
-    newOutput.push_back(output[smallestId][choice]);
+    newOutput.push_back(output[smallestId].possiblePatterns[choice]);
 
-    output[smallestId] = newOutput;
+    std::copy(newOutput.begin(), newOutput.end(), std::back_inserter(output[smallestId].possiblePatterns));
     return smallestId;
 }
 
 bool WFC::completed() {
     for (int i = 0; i < output.size(); i++) {
-        if (output[i].size() > 1) { // If an element has more than one possible pattern
+        if (output[i].possiblePatterns.size() > 1) { // If an element has more than one possible pattern
             return false;
         }
     }
@@ -196,7 +241,7 @@ bool WFC::completed() {
 
 bool WFC::contradiction() {
     for (int i = 0; i < output.size(); i++) {
-        if (output[i].size() == 0) { // If an element has no possible patterns
+        if (output[i].possiblePatterns.size() == 0) { // If an element has no possible patterns
             return true;
         }
     }
@@ -219,8 +264,25 @@ void WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
     }
 }
 
+PPMImage WFC::buildOutput() {
+    PPMImage out = PPMImage(outputX, outputY);
+    int NValue = output[0].possiblePatterns[0].N;
+
+    for (int i = 0; i < outputY; i++) {
+        for (int l = 0; l < outputX; l++) {
+            for (int j = 0; j < NValue; j++) {
+                for (int k = 0; k < NValue; k++) {
+                    out.writePixel(NValue*l+k, NValue*i+j, output[i*outputX+l].possiblePatterns[0].pixels.pixelAt(k,j));
+                }
+            }
+        }
+    }
+
+    return out;
+}
+
 int main() {
-    PPMImage *image = new PPMImage();
+    PPMImage *image = new PPMImage(1,1);
     image->readPPM("/Users/sameeragrawal/Desktop/hello.ppm");
 
     std::cout << image->y << " x " << image->x << "\n";
