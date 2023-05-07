@@ -24,7 +24,6 @@ void WFC::ruleGeneration(PPMImage img, int N) {
             for (int k = 0; k < N; k++) {
                 for (int l = 0; l < N; l++) {
                     pattern->pixels.writePixel(l,k,img.pixelAt(j+l,i+k));
-                    //std::cout << (i+k) << " " << (j+l) << "\n";
                 }
             }
             patterns.push_back(*pattern);
@@ -45,6 +44,7 @@ void WFC::ruleGeneration(PPMImage img, int N) {
             cnt++;
         }
     }
+    std::cout << cnt << "\n";
     
     // Define hash table for top, left, right, and bottom patterns
     HashTable* topRules = new HashTable(cnt);
@@ -72,16 +72,16 @@ void WFC::ruleGeneration(PPMImage img, int N) {
     for (int i = 0; i < topRules->getLength(); i++) {
         for (int j = 0; j < patterns.size(); j++) {
             if (patterns[j].pixels == topRules->get(i).head->pat.pixels) {
-                if (j > img.x) { // If we're on the second row or below, we can have a pattern above
+                if (j >= img.x/N) { // If we're on the second row or below, we can have a pattern above
                     topRules->insert(patterns[j-img.x]);
                 }
-                if ((j%img.x) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
+                if ((j%(img.x/N)) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
                     leftRules->insert(patterns[j-1]); 
                 }
-                if ((j%(img.x-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+                if ((j%((img.x/N)-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
                     rightRules->insert(patterns[j+1]); 
                 }
-                if (j < (patterns.size()-img.x)) { // If we're at least one row before the end, we can have a pattern below
+                if ((j) < (patterns.size()-(img.x/N))) { // If we're at least one row before the end, we can have a pattern below
                     bottomRules->insert(patterns[j+img.x]);
                 }
             }
@@ -103,7 +103,7 @@ void WFC::generateOutput(int N, int X, int Y) {
             Wave* w = (Wave*)(malloc(sizeof(Wave)));
             std::copy(patterns.begin(), patterns.end(), std::back_inserter(w->possiblePatterns));
             w->propagated = false;
-            output[(j*outputX+k)/N] = *w;
+            output.push_back(*w);
         }
     }
 }
@@ -119,34 +119,35 @@ bool WFC::checkPropagation() {
 
 // Propagate the data for an element with a specific id
 int WFC::propagate(int id) {
-    if (checkPropagation()) {
+    /*if (checkPropagation()) {
         return 0;
-    }
-
-    if (id > outputX) { // If we're on the second row or below, we can have a pattern above
+    }*/
+    int NValue = output[0].possiblePatterns[0].N;
+    int outputx = outputX/NValue;
+    if (id >= outputx) { // If we're on the second row or below, we can have a pattern above
         int i = 0;
-        while (i < output[id-outputX].possiblePatterns.size()) {
+        while (i < output[id-outputx].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[0].get(pat); // Get all possible above patterns for the pattern we just collapsed
-                if (possibles.contains(output[id-outputX].possiblePatterns[i])) {
+                if (possibles.contains(output[id-outputx].possiblePatterns[i])) {
                     possible = true;
                 }
             }
             if (!(possible)) {
-                output[id-outputX].possiblePatterns.erase(output[id-outputX].possiblePatterns.begin() + i); // Delete all patterns that can't be above the one we just collapsed
+                output[id-outputx].possiblePatterns.erase(output[id-outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be above the one we just collapsed
             }
             else {
                 i++;
             }
         }
-        output[id-outputX].propagated = true;
+        output[id-outputx].propagated = true;
         int newID = id-outputX;
-        return propagate(newID);
+        //return propagate(newID);
     }
 
-    if ((id%outputX) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
+    if ((id%outputx) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
         int i = 0;
         while (i < output[id-1].possiblePatterns.size()) {
             bool possible = false;
@@ -166,10 +167,10 @@ int WFC::propagate(int id) {
         }
         output[id-1].propagated = true;
         int newID = id-1;
-        return propagate(newID);
+        //return propagate(newID);
     }
 
-    if (id%(outputX-1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+    if (id%(outputx-1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
         int i = 0;
         while (i < output[id+1].possiblePatterns.size()) {
             bool possible = false;
@@ -189,30 +190,30 @@ int WFC::propagate(int id) {
         }
         output[id+1].propagated = true;
         int newID = id+1;
-        return propagate(newID);
+        //return propagate(newID);
     }
 
-    if (id < output.size()-outputX) { // If we're at least one row before the end, we can have a pattern below
+    if (id < (output.size()-outputx)) { // If we're at least one row before the end, we can have a pattern below
         int i = 0;
-        while (i < output[id+outputX].possiblePatterns.size()) {
+        while (i < output[id+outputx].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[3].get(pat); // Get all possible below patterns for the pattern we just collapsed
-                if (possibles.contains(output[id+outputX].possiblePatterns[i])) {
+                if (possibles.contains(output[id+outputx].possiblePatterns[i])) {
                     possible = true;
                 }
             }
             if (!(possible)) {
-                output[id+outputX].possiblePatterns.erase(output[id+outputX].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
+                output[id+outputx].possiblePatterns.erase(output[id+outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
             }
             else {
                 i++;
             }
         }
-        output[id+outputX].propagated = true;
-        int newID = id+outputX;
-        return propagate(newID);
+        output[id+outputx].propagated = true;
+        int newID = id+outputx;
+        //return propagate(newID);
     }
 }
 
@@ -274,6 +275,7 @@ PPMImage WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
         while (!(complete)) {
             int collapsedId = observe();
             propagate(collapsedId);
+            std::cout << "Reached here2!\n";
             contradicts = contradiction();
             if (contradicts) {
                 break;

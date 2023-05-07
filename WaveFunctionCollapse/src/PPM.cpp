@@ -91,7 +91,9 @@ PPMImage::PPMImage(const char *filename) {
         pix->red = static_cast<unsigned>(*ptr);
         pix->green = static_cast<unsigned>(*(ptr+1));
         pix->blue = static_cast<unsigned>(*(ptr+2));
-        data[i] = *pix;
+        data[i].blue = pix->blue;
+        data[i].green = pix->green;
+        data[i].red = pix->red;
         i++;
     }
     fclose(fp);
