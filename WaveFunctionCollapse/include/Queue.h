@@ -12,7 +12,7 @@ class Queue
 	};
 
 private:
-	node* head;
+	node* front;
 
 public:
 	Queue()
