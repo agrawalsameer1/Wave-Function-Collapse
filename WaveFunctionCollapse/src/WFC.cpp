@@ -74,7 +74,7 @@ void WFC::ruleGeneration(PPMImage img, int N) {
                     topRules->insert(patterns[j-img.x]);
                 }
                 if ((j%img.x) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
-                    leftRules->insert(patterns[j+1]); 
+                    leftRules->insert(patterns[j-1]); 
                 }
                 if ((j%(img.x-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
                     rightRules->insert(patterns[j+1]); 
@@ -100,6 +100,8 @@ void WFC::generateOutput(int N, int X, int Y) {
         for (int k = 0; k < outputX/N; k++) {
             Wave* w = (Wave*)(malloc(sizeof(Wave)));
             std::copy(patterns.begin(), patterns.end(), std::back_inserter(w->possiblePatterns));
+            w->propagated = false;
+            output[(j*outputX+k)/N] = *w;
         }
     }
 }

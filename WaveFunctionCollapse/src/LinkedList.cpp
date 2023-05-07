@@ -13,12 +13,12 @@
 // Creates the head node and sets length to zero.
 LinkedList::LinkedList()
 {
-    head = new node();
+    head = (node*)(malloc(sizeof(node)));
     length = 0;
 }
 
 LinkedList::LinkedList(WFC::Pattern pat) {
-    head = new node();
+    head = (node*)(malloc(sizeof(node)));;
     head->pat = pat;
     length = 0;
 }

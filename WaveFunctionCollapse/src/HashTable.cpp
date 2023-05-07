@@ -43,7 +43,7 @@ bool HashTable::contains(WFC::Pattern pat, int length) {
 void HashTable::insert(WFC::Pattern pat)
 {
     bool inTable = false;
-    Element* element = new Element();
+    node* element = (node*)(malloc(sizeof(node)));
     element->pat = pat;
     for (int i = 0; i < filled; i++) {
         if (array[i].head->pat.pixels == pat.pixels) {
