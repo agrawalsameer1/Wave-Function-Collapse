@@ -1,3 +1,5 @@
+#include "../include/PPM.h"
+
 // Queue class function implementation goes brrrrrrrrrrrr
 
 template <typename T> void Queue<T>::push(T* item)

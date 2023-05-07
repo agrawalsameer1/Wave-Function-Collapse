@@ -20,7 +20,7 @@ HashTable::HashTable(int tableLength)
     filled = 0;
 }
 
-bool HashTable::contains(WFC::Pattern pat) {
+bool HashTable::contains(Pattern pat) {
     for (int i = 0; i < filled; i++) {
         if (array[i].head->pat.pixels == pat.pixels) {
             return true;
@@ -29,7 +29,7 @@ bool HashTable::contains(WFC::Pattern pat) {
     return false;
 }
 
-bool HashTable::contains(WFC::Pattern pat, int length) {
+bool HashTable::contains(Pattern pat, int length) {
     int max = length < filled ? length:filled;
     for (int i = 0; i < max; i++) {
         if (array[i].head->pat.pixels == pat.pixels) {
@@ -40,7 +40,7 @@ bool HashTable::contains(WFC::Pattern pat, int length) {
 }
 
 // Adds an item to the Hash Table.
-void HashTable::insert(WFC::Pattern pat)
+void HashTable::insert(Pattern pat)
 {
     bool inTable = false;
     node* element = (node*)(malloc(sizeof(node)));
@@ -64,7 +64,7 @@ LinkedList HashTable::get(int index) {
 
 // Returns an Element from the Hash Table by key.
 // If the Element isn't found, a null pointer is returned.
-LinkedList HashTable::get(WFC::Pattern pat)
+LinkedList HashTable::get(Pattern pat)
 {
     for (int i = 0; i < filled; i++) {
         if (array[i].head->pat.pixels == pat.pixels) {

@@ -98,7 +98,9 @@ PPMImage::PPMImage(const char *filename) {
 }
 
 void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
-    data[x*ycoord+xcoord] = pix;
+    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->blue = pix.blue;
+    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->green = pix.green;
+    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->red = pix.red;
 }
 
 PPMPixel PPMImage::pixelAt(int xcoord, int ycoord) {

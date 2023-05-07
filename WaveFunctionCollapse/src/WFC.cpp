@@ -13,16 +13,18 @@ void WFC::wfc()
 
 // Generate adjacency rules from input img
 void WFC::ruleGeneration(PPMImage img, int N) {
-
     // Extract all NxN tiles from input image
-    for (int i = 0; i < std::floor(img.y/N); i+=N) {
-        for (int j = 0; j < std::floor(img.x/N); j+=N) {
+    for (int i = 0; i < img.y; i+=N) {
+        for (int j = 0; j < img.x; j+=N) {
             Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
-            pattern->id = ((i*img.x+j)/N);
+            pattern->id = (((i*img.x)/(N*N))+(j/N));
+            std::cout << pattern->id << "\n";
             pattern->N = N;
+            pattern->pixels = *(new PPMImage(N,N));
             for (int k = 0; k < N; k++) {
                 for (int l = 0; l < N; l++) {
                     pattern->pixels.writePixel(l,k,img.pixelAt(j+l,i+k));
+                    //std::cout << (i+k) << " " << (j+l) << "\n";
                 }
             }
             patterns.push_back(*pattern);
@@ -96,8 +98,8 @@ void WFC::ruleGeneration(PPMImage img, int N) {
 void WFC::generateOutput(int N, int X, int Y) {
     outputX = X;
     outputY = Y;
-    for (int j = 0; j < outputY/N; j++) {
-        for (int k = 0; k < outputX/N; k++) {
+    for (int j = 0; j < outputY/N; j+=N) {
+        for (int k = 0; k < outputX/N; k+=N) {
             Wave* w = (Wave*)(malloc(sizeof(Wave)));
             std::copy(patterns.begin(), patterns.end(), std::back_inserter(w->possiblePatterns));
             w->propagated = false;
@@ -107,24 +109,26 @@ void WFC::generateOutput(int N, int X, int Y) {
 }
 
 bool WFC::checkPropagation() {
-    for (int i = 0; i < outputY; i++) {
-        for (int j = 0; j < outputX; j++) {
-            if (output[i*outputX+j].propagated == false) {
-                return false;
-            }
+    for (int i = 0; i < output.size(); i++) {
+        if (output[i].propagated == false) {
+            return false;
         }
     }
     return true;
 }
 
 // Propagate the data for an element with a specific id
-void WFC::propagate(int id) {
+int WFC::propagate(int id) {
+    if (checkPropagation()) {
+        return 0;
+    }
+
     if (id > outputX) { // If we're on the second row or below, we can have a pattern above
         int i = 0;
         while (i < output[id-outputX].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
-                WFC::Pattern pat = output[id].possiblePatterns[it];
+                Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[0].get(pat); // Get all possible above patterns for the pattern we just collapsed
                 if (possibles.contains(output[id-outputX].possiblePatterns[i])) {
                     possible = true;
@@ -138,6 +142,8 @@ void WFC::propagate(int id) {
             }
         }
         output[id-outputX].propagated = true;
+        int newID = id-outputX;
+        return propagate(newID);
     }
 
     if ((id%outputX) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
@@ -145,7 +151,7 @@ void WFC::propagate(int id) {
         while (i < output[id-1].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
-                WFC::Pattern pat = output[id].possiblePatterns[it];
+                Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[1].get(pat); // Get all possible patterns to the left of the pattern we just collapsed
                 if (possibles.contains(output[id-1].possiblePatterns[i])) {
                     possible = true;
@@ -159,6 +165,8 @@ void WFC::propagate(int id) {
             }
         }
         output[id-1].propagated = true;
+        int newID = id-1;
+        return propagate(newID);
     }
 
     if (id%(outputX-1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
@@ -166,7 +174,7 @@ void WFC::propagate(int id) {
         while (i < output[id+1].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
-                WFC::Pattern pat = output[id].possiblePatterns[it];
+            Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[2].get(pat); // Get all possible patterns to the right of the pattern we just collapsed
                 if (possibles.contains(output[id+1].possiblePatterns[i])) {
                     possible = true;
@@ -180,6 +188,8 @@ void WFC::propagate(int id) {
             }
         }
         output[id+1].propagated = true;
+        int newID = id+1;
+        return propagate(newID);
     }
 
     if (id < output.size()-outputX) { // If we're at least one row before the end, we can have a pattern below
@@ -187,7 +197,7 @@ void WFC::propagate(int id) {
         while (i < output[id+outputX].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
-                WFC::Pattern pat = output[id].possiblePatterns[it];
+                Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[3].get(pat); // Get all possible below patterns for the pattern we just collapsed
                 if (possibles.contains(output[id+outputX].possiblePatterns[i])) {
                     possible = true;
@@ -201,6 +211,8 @@ void WFC::propagate(int id) {
             }
         }
         output[id+outputX].propagated = true;
+        int newID = id+outputX;
+        return propagate(newID);
     }
 }
 
@@ -220,15 +232,16 @@ int WFC::observe()
         }
     }
 
-    std::random_device rd; 
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(0, output[smallestId].possiblePatterns.size());
-    int choice = distr(gen);
+    std::random_device rd2; 
+    std::mt19937 gen2(rd2());
+    std::uniform_int_distribution<> distr2(0, output[smallestId].possiblePatterns.size());
+    int choice = distr2(gen2);
 
     vector<Pattern> newOutput;
     newOutput.push_back(output[smallestId].possiblePatterns[choice]);
 
     std::copy(newOutput.begin(), newOutput.end(), std::back_inserter(output[smallestId].possiblePatterns));
+    output[smallestId].propagated = true;
     return smallestId;
 }
 
@@ -250,10 +263,11 @@ bool WFC::contradiction() {
     return false;
 }
 
-void WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
+PPMImage WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
     bool contradicts = true;
     bool complete = false;
     ruleGeneration(input, N);
+    std::cout << "Reached here!\n";
 
     while (contradicts) {            
         generateOutput(N, outputX, outputY); // If there is a contradiction, reset the output
@@ -261,17 +275,22 @@ void WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
             int collapsedId = observe();
             propagate(collapsedId);
             contradicts = contradiction();
+            if (contradicts) {
+                break;
+            }
             complete = completed();
         }
     }
+    PPMImage returned = buildOutput();
+    return returned;
 }
 
 PPMImage WFC::buildOutput() {
     PPMImage out = PPMImage(outputX, outputY);
     int NValue = output[0].possiblePatterns[0].N;
 
-    for (int i = 0; i < outputY; i++) {
-        for (int l = 0; l < outputX; l++) {
+    for (int i = 0; i < outputY/NValue; i++) {
+        for (int l = 0; l < outputX/NValue; l++) {
             for (int j = 0; j < NValue; j++) {
                 for (int k = 0; k < NValue; k++) {
                     out.writePixel(NValue*l+k, NValue*i+j, output[i*outputX+l].possiblePatterns[0].pixels.pixelAt(k,j));
@@ -281,13 +300,4 @@ PPMImage WFC::buildOutput() {
     }
 
     return out;
-}
-
-int main() {
-    PPMImage *image = new PPMImage(1,1);
-    image->readPPM("/Users/sameeragrawal/Desktop/hello.ppm");
-
-    std::cout << image->y << " x " << image->x << "\n";
-
-    std::cout << *image << "\n";
 }

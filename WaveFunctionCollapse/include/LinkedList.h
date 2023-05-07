@@ -1,14 +1,16 @@
+#pragma once
+
 #ifndef LinkedList_h
 #define LinkedList_h
 
 #include <iostream>
 #include <string>
-#include "../include/WFC.h"
+#include "Structures.h"
 using namespace std;
 
 struct node
 {
-    WFC::Pattern pat;
+    Pattern pat;
     node * next;
 };
 
@@ -28,21 +30,21 @@ public:
     LinkedList();
 
     // Constructs linked list object with head node containing the WFC::Pattern
-    LinkedList(WFC::Pattern pat);
+    LinkedList(Pattern pat);
 
-    bool contains(WFC::Pattern pat);
+    bool contains(Pattern pat);
     
     // Inserts an item at the end of the list.
     void insert(node* newElement );
     
     // Removes an Element from the list by item key.
     // Returns true if the operation is successful.
-    bool remove(WFC::Pattern Pat);
+    bool remove(Pattern Pat);
     
     // Searches for an item by its key.
     // Returns a reference to first match.
     // Returns a NULL pointer if no match is found.
-    node* get(WFC::Pattern Pat);
+    node* get(Pattern Pat);
     
     // Returns the length of the list.
     int getLength();

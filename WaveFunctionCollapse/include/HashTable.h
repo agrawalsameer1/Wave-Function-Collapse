@@ -1,4 +1,7 @@
+#pragma once
+
 #include "LinkedList.h"
+#include "Structures.h"
 
 class HashTable
 {
@@ -14,20 +17,16 @@ public:
     // Array length is set to 13 by default.
     HashTable( int tableLength = 13 );
 
-    bool contains(WFC::Pattern pat);
+    bool contains(Pattern pat);
 
-    bool contains(WFC::Pattern pat, int length);
+    bool contains(Pattern pat, int length);
     
     // Adds an item to the Hash Table.
-    void insert(WFC::Pattern pat);
-    
-    // Deletes an Item by key from the Hash Table.
-    // Returns true if the operation is successful.
-    bool erase( string Key );
+    void insert(Pattern pat);
     
     // Returns an item from the Hash Table by key.
     // If the item isn't found, a null pointer is returned.
-    LinkedList get(WFC::Pattern pat);
+    LinkedList get(Pattern pat);
 
 
     LinkedList get(int index);
@@ -43,7 +42,4 @@ public:
     
     // Returns the number of Items in the Hash Table.
     int getNumberOfElements();
-    
-    // De-allocates all memory used for the Hash Table.
-    ~HashTable();
 };

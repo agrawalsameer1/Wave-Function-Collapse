@@ -17,7 +17,7 @@ LinkedList::LinkedList()
     length = 0;
 }
 
-LinkedList::LinkedList(WFC::Pattern pat) {
+LinkedList::LinkedList(Pattern pat) {
     head = (node*)(malloc(sizeof(node)));;
     head->pat = pat;
     length = 0;
@@ -39,7 +39,7 @@ void LinkedList::insert(node * newElement )
 
 // Removes an item from the list by item key.
 // Returns true if the operation is successful.
-bool LinkedList::remove(WFC::Pattern pat)
+bool LinkedList::remove(Pattern pat)
 {
     node* traverser = head;
 
@@ -58,7 +58,7 @@ bool LinkedList::remove(WFC::Pattern pat)
     }
 }
 
-bool LinkedList::contains(WFC::Pattern pat) {
+bool LinkedList::contains(Pattern pat) {
     node* getter = get(pat);
     if (getter == nullptr) {
         return false;
@@ -74,7 +74,7 @@ bool LinkedList::contains(WFC::Pattern pat) {
 // Searches for an item by its key.
 // Returns a reference to first match.
 // Returns a NULL pointer if no match is found.
-node* LinkedList::get(WFC::Pattern pat)
+node* LinkedList::get(Pattern pat)
 {
     node* traverser = head;
     while ((!(traverser->pat.pixels == pat.pixels)) && (traverser->next)) {

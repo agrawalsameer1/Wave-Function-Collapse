@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -21,7 +23,6 @@ class PPMImage {
         PPMImage(int X, int Y);
         PPMImage(const char *filename);
         void writePixel(int x, int y, PPMPixel pix);
-        void readPPM(const char *filename);
         PPMPixel pixelAt(int xcoord, int ycoord);
         bool operator==(PPMImage img);
         void saveImage(const char *filename);
