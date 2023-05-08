@@ -13,8 +13,8 @@
 struct Pattern
 {
     PPMImage pixels;
-    int id;
-    int N;
+    int id = 0;
+    int N = 0;
 };
 
 // The Wave structure defines the "domain" of each Element. It hosts a lists of all possible Patterns in a boolean array.
