@@ -25,78 +25,62 @@ PPMImage::PPMImage(int X, int Y) {
 
 PPMImage::PPMImage(const char *filename) {
     char buff[16];
-    FILE *fp;
-    int c, rgb_comp_color;
+    std::string mMagic;
+    std::ifstream infile(filename, std::ifstream::binary);
+    // Examine if the file could be opened successfully
+    if (!infile.is_open()) 
+    {
+        std::cout << "Failed to open " << filename << std::endl;
+        exit(1);
+    }
+
+    infile >> mMagic;
+    infile.seekg(1, infile.cur);
+    char c;
+    infile.get(c);
+
+    if (c == '#')
+    {
+        while (c != '\n')
+        {
+            infile.get(c);
+        }
+    }
+    else
+    {
+        infile.seekg(-1, infile.cur);
+    }
+
+    int rgb_comp_color;
     
-    //open PPM file for reading
-    fp = fopen(filename, "r");
-    if (!fp) {
-        fprintf(stderr, "Unable to open file '%s'\n", filename);
+    infile >> x >> y >> rgb_comp_color;
+
+    if (rgb_comp_color != 255)
+    {
+        std::cout << "Failed to read " << filename << std::endl;
+        std::cout << "Got PPM maximum value: " << rgb_comp_color << std::endl;
+        std::cout << "Maximum pixel has to be 255" << std::endl;
         exit(1);
     }
 
-    //read image format
-    if (!fgets(buff, sizeof(buff), fp)) {
-        perror(filename);
-        exit(1);
-    }
+    uint8_t * mBuffer = new uint8_t[x * y * 3];
 
-    //check the image format
-    if (buff[0] != 'P' || buff[1] != '6') {
-        fprintf(stderr, "Invalid image format (must be 'P6')\n");
-        exit(1);
-    }
-
-    //check for comments
-    c = getc(fp);
-    while (c == '#') {
-        while (getc(fp) != '\n')
-        ;
-        c = getc(fp);
-    }
-
-    ungetc(c, fp);
-
-    //read image size information
-    if (fscanf(fp, "%d %d", &x, &y) != 2) {
-        fprintf(stderr, "Invalid image size (error loading '%s')\n", filename);
-        exit(1);
-    }   
-
-    //read rgb component
-    if (fscanf(fp, "%d", &rgb_comp_color) != 1) {
-        fprintf(stderr, "Invalid rgb component (error loading '%s')\n", filename);
-        exit(1);
-    }
-
-    //check rgb component depth
-    if (rgb_comp_color!= RGB_COMPONENT_COLOR) {
-        fprintf(stderr, "'%s' does not have 8-bits components\n", filename);
-        exit(1);
-    }
-
-    while (fgetc(fp) != '\n') 
-    ;
-
+    infile.seekg(1, infile.cur);
+    infile.read(reinterpret_cast<char *>(mBuffer), x * y * 3);
     //alloc memory form image
-    data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
-    
-    //define temp array to hold our pixels
-    unsigned char *pixels = new unsigned char[x*y*3];
-    
-    //transfer pixel data to img
-    int i = 0;
-    for (unsigned char *ptr = pixels; fscanf(fp, "%c", ptr) != EOF; ptr+=3) {
+    PPMPixel data2[x*y];
+
+    for (int i = 0; i < x*y; i++) {
         PPMPixel* pix = new PPMPixel();
-        pix->red = static_cast<unsigned>(*ptr);
-        pix->green = static_cast<unsigned>(*(ptr+1));
-        pix->blue = static_cast<unsigned>(*(ptr+2));
-        data[i].blue = pix->blue;
-        data[i].green = pix->green;
-        data[i].red = pix->red;
+        pix->red = static_cast<unsigned>(mBuffer[3*i]);
+        pix->green = static_cast<unsigned>(mBuffer[3*i+1]);
+        pix->blue = static_cast<unsigned>(mBuffer[3*i+2]);
+        data2[i] = *pix;
+        //std::cout << pix->toString() << "\n";
+        std::cout << data[i].toString() << "\n";
         i++;
     }
-    fclose(fp);
+    //fclose(fp);
 }
 
 void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
