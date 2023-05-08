@@ -12,8 +12,6 @@ class WFC
 public:
 	/* *************FUNCTIONS************* */
 
-	// The "driver function". It starts the whole process.
-	void wfc();
 	// Generate adjacency rules from an input image
 	void ruleGeneration(PPMImage img, int N);
 	// Generate output image 

@@ -13,8 +13,8 @@
 struct Pattern
 {
     PPMImage pixels;
-    int id;
-    int N;
+    int id = 0;
+    int N = 0;
 };
 
 // The Wave structure defines the "domain" of each Element. It hosts a lists of all possible Patterns in a boolean array.
@@ -22,14 +22,5 @@ struct Pattern
 struct Wave
 {
     std::vector<Pattern> possiblePatterns;
-    int entropy;
     bool propagated;
-};
-
-// The Element structure defines an NxN region in the new output image.
-// It also contains an array of all its adjacent neighbors.
-struct Element
-{
-    Wave* wave;
-    std::vector<Element> neighbors[4]; // each Element can have a maximum of 4 adjacent neighbors, obviously
 };
