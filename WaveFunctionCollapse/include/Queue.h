@@ -17,7 +17,7 @@ private:
 public:
 	Queue()
 	{
-		head = nullptr;
+		front = nullptr;
 	}
 
 	void push(T* item);
