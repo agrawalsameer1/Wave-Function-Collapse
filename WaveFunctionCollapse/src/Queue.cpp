@@ -15,6 +15,7 @@ template <typename T> void Queue<T>::push(T* item)
 	if (!p)
 	{
 		front = tmp;
+		size++;
 		return;
 	}
 	//iterate thru queue until end
@@ -23,6 +24,7 @@ template <typename T> void Queue<T>::push(T* item)
 		p = p->link;
 	}
 	p->link = tmp;
+	size++;
 }
 
 template <typename T> T* Queue<T>::top()
@@ -33,5 +35,11 @@ template <typename T> T* Queue<T>::top()
 
 template <typename T> void Queue<T>::pop()
 {
-	if (front) front = front->link;
+	if (front)
+	{
+		front = front->link;
+		size--;
+	}
 }
+
+int size() { return size; }

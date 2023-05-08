@@ -3,6 +3,7 @@
 #include <random>
 #include "../include/WFC.h"
 #include "../include/PPM.h"
+#include "../include/Queue.h"
 
 // Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
 
@@ -120,6 +121,13 @@ int WFC::propagate(int id) {
     /*if (checkPropagation()) {
         return 0;
     }*/
+    Queue<Wave> queue;
+    queue.push(output[id]);
+    while (queue.size() > 0)
+    {
+        Wave wave
+    }
+
     int NValue = output[0].possiblePatterns[0].N;
     int outputx = outputX/NValue;
     if (id >= outputx) { // If we're on the second row or below, we can have a pattern above
@@ -141,7 +149,7 @@ int WFC::propagate(int id) {
             }
         }
         output[id - outputx].propagated = true;
-        int newID = id-outputX;
+        int newID = id - outputX;
         //return propagate(newID);
     }
 
@@ -163,24 +171,24 @@ int WFC::propagate(int id) {
                 i++;
             }
         }
-        output[id-1].propagated = true;
-        int newID = id-1;
+        output[id - 1].propagated = true;
+        int newID = id - 1;
         //return propagate(newID);
     }
 
-    if (id%(outputx-1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+    if (id % (outputx - 1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
         int i = 0;
-        while (i < output[id+1].possiblePatterns.size()) {
+        while (i < output[id + 1].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
             Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[2].get(pat); // Get all possible patterns to the right of the pattern we just collapsed
-                if (possibles.contains(output[id+1].possiblePatterns[i])) {
+                if (possibles.contains(output[id + 1].possiblePatterns[i])) {
                     possible = true;
                 }
             }
             if (!(possible)) {
-                output[id+1].possiblePatterns.erase(output[id+1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the right of the one we just collapsed
+                output[id+1].possiblePatterns.erase(output[id + 1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the right of the one we just collapsed
             }
             else {
                 i++;
@@ -193,17 +201,17 @@ int WFC::propagate(int id) {
 
     if (id < (output.size()-outputx)) { // If we're at least one row before the end, we can have a pattern below
         int i = 0;
-        while (i < output[id+outputx].possiblePatterns.size()) {
+        while (i < output[id + outputx].possiblePatterns.size()) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
                 LinkedList possibles = adjacencyRules[3].get(pat); // Get all possible below patterns for the pattern we just collapsed
-                if (possibles.contains(output[id+outputx].possiblePatterns[i])) {
+                if (possibles.contains(output[id + outputx].possiblePatterns[i])) {
                     possible = true;
                 }
             }
             if (!(possible)) {
-                output[id+outputx].possiblePatterns.erase(output[id+outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
+                output[id + outputx].possiblePatterns.erase(output[id + outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
             }
             else {
                 i++;
