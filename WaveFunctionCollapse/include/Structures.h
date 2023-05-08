@@ -22,14 +22,5 @@ struct Pattern
 struct Wave
 {
     std::vector<Pattern> possiblePatterns;
-    int entropy;
     bool propagated;
-};
-
-// The Element structure defines an NxN region in the new output image.
-// It also contains an array of all its adjacent neighbors.
-struct Element
-{
-    Wave* wave;
-    std::vector<Element> neighbors[4]; // each Element can have a maximum of 4 adjacent neighbors, obviously
 };

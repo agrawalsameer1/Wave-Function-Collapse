@@ -13,14 +13,17 @@ class Queue
 
 private:
 	node* front;
+	int size;
 
 public:
 	Queue()
 	{
 		front = nullptr;
+		size = 0;
 	}
 
 	void push(T* item);
 	T* top();
 	void pop();
+	int size();
 };
