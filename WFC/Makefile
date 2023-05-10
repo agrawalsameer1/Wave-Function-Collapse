@@ -45,7 +45,7 @@ IMAGE_CXXFLAGS = $(WX_CPPFLAGS) -D__WX$(TOOLKIT)__ $(__WXUNIV_DEFINE_p) \
 	$(__THREAD_DEFINE_p) -I$(srcdir) $(__DLLFLAG_p) -I$(srcdir)/../../samples \
 	$(WX_CXXFLAGS) $(SAMPLES_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 IMAGE_OBJECTS =  \
-	SudokuDialog.o \
+	ImageExpansionDialog.o \
 	WFC_WFC.o \
 	$(__WFC___win32rc)
 
@@ -136,9 +136,9 @@ WFC_bundle: $(____WFC_BUNDLE_TGT_REF_DEP)
 
 data: 
 
-SudokuDialog.o: $(srcdir)/SudokuDialog.cpp
-	$(CXXC) -c -o $@ $(IMAGE_CXXFLAGS) $(srcdir)/SudokuDialog.cpp
-	echo $(CXXC)" -c -o "$@" "$(IMAGE_CXXFLAGS)" "$(srcdir)/SudokuDialog.cpp
+ImageExpansionDialog.o: $(srcdir)/ImageExpansionDialog.cpp
+	$(CXXC) -c -o $@ $(IMAGE_CXXFLAGS) $(srcdir)/ImageExpansionDialog.cpp
+	echo $(CXXC)" -c -o "$@" "$(IMAGE_CXXFLAGS)" "$(srcdir)/ImageExpansionDialog.cpp
 
 WFC_WFC.o: $(srcdir)/WFC.cpp
 	$(CXXC) -c -o $@ $(IMAGE_CXXFLAGS) $(srcdir)/WFC.cpp

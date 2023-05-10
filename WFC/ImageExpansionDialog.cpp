@@ -1,7 +1,7 @@
 #include <wx/wx.h>
-#include "SudokuDialog.h"
+#include "ImageExpansionDialog.h"
 
-SudokuDialog::SudokuDialog(const wxString & title)
+ImageExpansionDialog::ImageExpansionDialog(const wxString & title)
        : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(250, 230))
 {
 
@@ -10,7 +10,7 @@ SudokuDialog::SudokuDialog(const wxString & title)
   wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
   wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 
-  wxStaticBox *st = new wxStaticBox(panel, -1, wxT("Gameboard"), 
+  wxStaticBox *st = new wxStaticBox(panel, -1, wxT("dunno image insertion yet but image will go here!"), 
       wxPoint(5, 5), wxSize(240, 150));
 
   wxButton *okButton = new wxButton(this, -1, wxT("Ok"), 

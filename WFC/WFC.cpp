@@ -1,9 +1,9 @@
-// WFC - Wave Form Collapse
+// WFC - Wave Function Collapse
 // LASA Advance CS 2
 // 2023
 
 #include <wx/wx.h>
-#include "SudokuDialog.h"
+#include "ImageExpansionDialog.h"
  
 class MyApp : public wxApp
 {
@@ -19,19 +19,19 @@ public:
     MyFrame();
  
 private:
-    wxButton* m_SudokuButton;
+    wxButton* m_ImageExpansionButton;
     wxButton* m_SchedulerButton;
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnSudokuStarted(wxCommandEvent& event);
+    void OnImageExpansionStarted(wxCommandEvent& event);
     void OnSchedulerStarted(wxCommandEvent& event);
 };
  
 enum
 {
-    ID_SUDOKU = 1,
+    ID_IMAGEEXPANSION = 1,
     ID_SCHEDULER = 2,
-    ID_SUDOKU_BUTTON = 3,
+    ID_IMAGEEXPANSION_BUTTON = 3,
     ID_SCHEDULER_BUTTON = 4
 };
  
@@ -46,7 +46,7 @@ MyFrame::MyFrame()
     : wxFrame(nullptr, wxID_ANY, "WFC")
 {
     wxMenu *menuApps = new wxMenu;
-    menuApps->Append(ID_SUDOKU, "&Sudoku...");
+    menuApps->Append(ID_IMAGEEXPANSION, "&Image Expansion...");
     menuApps->Append(ID_SCHEDULER, "&Scheduler...");
     menuApps->AppendSeparator();
     menuApps->Append(wxID_EXIT);
@@ -62,11 +62,11 @@ MyFrame::MyFrame()
  
     CreateStatusBar();
  
-    Bind(wxEVT_MENU, &MyFrame::OnSudokuStarted, this, ID_SUDOKU);
+    Bind(wxEVT_MENU, &MyFrame::OnImageExpansionStarted, this, ID_IMAGEEXPANSION);
     Bind(wxEVT_MENU, &MyFrame::OnSchedulerStarted, this, ID_SCHEDULER);
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_BUTTON, &MyFrame::OnSudokuStarted, this, ID_SUDOKU_BUTTON);
+    Bind(wxEVT_BUTTON, &MyFrame::OnImageExpansionStarted, this, ID_IMAGEEXPANSION_BUTTON);
     Bind(wxEVT_BUTTON, &MyFrame::OnSchedulerStarted, this, ID_SCHEDULER_BUTTON);
 
 
@@ -75,10 +75,11 @@ MyFrame::MyFrame()
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     panel->SetSizer(sizer);
 
-    m_SudokuButton = new wxButton(panel, ID_SUDOKU_BUTTON, "Sudoku");
-    sizer->Add(m_SudokuButton, wxSizerFlags().Centre().Border());
-    m_SchedulerButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Scheduler");
+    m_ImageExpansionButton = new wxButton(panel, ID_IMAGEEXPANSION_BUTTON, "Image Expansion");
+    sizer->Add(m_ImageExpansionButton, wxSizerFlags().Centre().Border());
+    m_SchedulerButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Test Button");
     sizer->Add(m_SchedulerButton, wxSizerFlags().Centre().Border());
+    
 
 }
  
@@ -89,16 +90,16 @@ void MyFrame::OnExit(wxCommandEvent& event)
  
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-    wxMessageBox("LASA Advanced CS 2\nSameer Agrawal\nLance Moczygemba\nJai Nagaraj\nMax Woodruff-Vale",
+    wxMessageBox("LASA Advanced CS \nSameer Agrawal\nLance Moczygemba\nJai Nagaraj\nMax Woodruff-Vale",
                  "About WFC", wxOK | wxICON_INFORMATION);
 }
 
-void MyFrame::OnSudokuStarted(wxCommandEvent& WXUNUSED(event))
+void MyFrame::OnImageExpansionStarted(wxCommandEvent& WXUNUSED(event))
 {
-    SetStatusText("Run Sudoku");
+    SetStatusText("Run Image Expansion");
 
-    SudokuDialog *sudoku = new SudokuDialog(wxT("SudokuDialog"));
-    sudoku->Show(true);
+    ImageExpansionDialog *imgexp= new ImageExpansionDialog(wxT("ImageExpansionDialog"));
+    imgexp->Show(true);
 
 
 /*
@@ -113,7 +114,7 @@ void MyFrame::OnSudokuStarted(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnSchedulerStarted(wxCommandEvent& WXUNUSED(event))
 {
     SetStatusText("Run Scheduler");
-    wxLogMessage("Scheduler started...");
+    wxLogMessage("hi");
 }
 
 
