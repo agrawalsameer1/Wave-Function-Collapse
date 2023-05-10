@@ -16,6 +16,18 @@ std::string PPMPixel::toString() {
     return st;
 }
 
+std::string PPMPixel::toStringBGR() {
+    std::string st = "";
+    st += '(';
+    st += std::to_string(static_cast<unsigned>(blue));
+    st += ',';
+    st += std::to_string(static_cast<unsigned>(green));
+    st += ',';
+    st += std::to_string(static_cast<unsigned>(red));
+    st += ") ";
+    return st;
+}
+
 PPMImage::PPMImage(int X, int Y) {
     x = X;
     y = Y;
