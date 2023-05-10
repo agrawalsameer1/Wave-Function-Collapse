@@ -11,7 +11,7 @@ private:
     int filled;
     
 public:
-    LinkedList* array;
+    std::vector<LinkedList> array;
     
     // Constructs the empty Hash Table object.
     // Array length is set to 13 by default.
@@ -22,12 +22,13 @@ public:
     bool contains(Pattern pat, int length);
     
     // Adds an item to the Hash Table.
-    void insert(Pattern pat);
+    void insert(Pattern key, Pattern pat);
+
+    void insert(int key, Pattern pat);
     
     // Returns an item from the Hash Table by key.
     // If the item isn't found, a null pointer is returned.
     LinkedList get(Pattern pat);
-
 
     LinkedList get(int index);
     

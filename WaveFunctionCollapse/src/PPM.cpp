@@ -1,7 +1,7 @@
 #include "../include/PPM.h"
 
 bool PPMPixel::operator==(PPMPixel pix) {
-    return pix.red==red && pix.green==green && pix.blue==blue;
+    return (static_cast<unsigned>(pix.red)==static_cast<unsigned>(red)) && (static_cast<unsigned>(pix.green)==static_cast<unsigned>(green)) && (static_cast<unsigned>(pix.blue)==static_cast<unsigned>(blue));
 }
 
 std::string PPMPixel::toString() {
@@ -19,12 +19,10 @@ std::string PPMPixel::toString() {
 PPMImage::PPMImage(int X, int Y) {
     x = X;
     y = Y;
-    PPMPixel* j = new PPMPixel();
     data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
 }
 
 PPMImage::PPMImage(const char *filename) {
-    char buff[16];
     std::string mMagic;
     std::ifstream infile(filename, std::ifstream::binary);
     // Examine if the file could be opened successfully
@@ -67,30 +65,32 @@ PPMImage::PPMImage(const char *filename) {
 
     infile.seekg(1, infile.cur);
     infile.read(reinterpret_cast<char *>(mBuffer), x * y * 3);
-    //alloc memory form image
-    PPMPixel data2[x*y];
 
-    for (int i = 0; i < x*y; i++) {
+    //alloc memory form image
+    data = (PPMPixel*)(malloc(sizeof(PPMPixel)*x*y));
+
+    for (int i = 0; i < x*y*3; i+=3) {
         PPMPixel* pix = new PPMPixel();
-        pix->red = static_cast<unsigned>(mBuffer[3*i]);
-        pix->green = static_cast<unsigned>(mBuffer[3*i+1]);
-        pix->blue = static_cast<unsigned>(mBuffer[3*i+2]);
-        data2[i] = *pix;
+        infile >> mBuffer[i];
+        infile >> mBuffer[i+1];
+        infile >> mBuffer[i+2];
+        pix->red = static_cast<unsigned>(mBuffer[i]);
+        pix->green = static_cast<unsigned>(mBuffer[i+1]);
+        pix->blue = static_cast<unsigned>(mBuffer[i+2]);
+        data[i/3] = *pix;
         //std::cout << pix->toString() << "\n";
-        std::cout << data[i].toString() << "\n";
-        i++;
+        //std::cout << data[i/3].toString() << "\n";
     }
     //fclose(fp);
 }
 
 void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
-    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->blue = pix.blue;
-    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->green = pix.green;
-    (data+(sizeof(PPMPixel)*(x*ycoord+xcoord)))->red = pix.red;
+    data[xcoord+ycoord*x] = pix;
 }
 
 PPMPixel PPMImage::pixelAt(int xcoord, int ycoord) {
-    return *(data + (sizeof(PPMPixel)*(x*ycoord+xcoord)));
+    PPMPixel pix = data[x*ycoord+xcoord];
+    return pix;
 }
 
 bool PPMImage::operator==(PPMImage img) {
@@ -130,7 +130,7 @@ void PPMImage::saveImage(const char *filename) {
         for (int j = 0; j < x; j++) {
             fout << pixelAt(j,i).red << " ";
             fout << pixelAt(j,i).green << " ";
-            fout << pixelAt(j,i).blue << "   ";
+            fout << pixelAt(j,i).blue << "\n";
         }
     }
     fout.close();

@@ -42,4 +42,4 @@ template <typename T> void Queue<T>::pop()
 	}
 }
 
-int size() { return size; }
+template <typename T> int Queue<T>::getSize() { return size; }

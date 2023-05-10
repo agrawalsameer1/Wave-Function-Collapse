@@ -13,8 +13,8 @@ void WFC::ruleGeneration(PPMImage img, int N) {
     // Extract all NxN tiles from input image
     for (int i = 0; i < img.y; i+=N) {
         for (int j = 0; j < img.x; j+=N) {
-            //Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
-            Pattern* pattern = new Pattern;
+            Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
+            //Pattern* pattern = new Pattern;
             pattern->id = (((i*img.x)/(N*N))+(j/N)); // i have no clue what this means but we give every Pattern an id i guess??
             std::cout << pattern->id << std::endl;
             // write NxN section of image to the Pattern
@@ -25,6 +25,7 @@ void WFC::ruleGeneration(PPMImage img, int N) {
                     pattern->pixels.writePixel(l,k,img.pixelAt(j+l,i+k));
                 }
             }
+            std::cout << pattern->pixels << "\n";
             patterns.push_back(*pattern);
         }
     }
@@ -40,6 +41,7 @@ void WFC::ruleGeneration(PPMImage img, int N) {
             }
         }
         if (!(found)) {
+            std::cout << patterns[i].pixels << "\n";
             cnt++;
         }
     }
@@ -51,54 +53,93 @@ void WFC::ruleGeneration(PPMImage img, int N) {
     HashTable* rightRules = new HashTable(cnt);
     HashTable* bottomRules = new HashTable(cnt);
 
+    std::cout << "reached here!\n";
+
     // Insert each unique pattern in input image as a key into each hash table
     for (int i = 0; i < patterns.size(); i++) {
         if (!(topRules->contains(patterns[i]))) {
-            topRules->insert(patterns[i]);
+            std::cout << "topinsert\n";
+            topRules->insert(patterns[i], patterns[i]);
         }
         if (!(leftRules->contains(patterns[i]))) {
-            leftRules->insert(patterns[i]);
+            std::cout << "leftinsert\n";
+            leftRules->insert(patterns[i], patterns[i]);
         }
         if (!(rightRules->contains(patterns[i]))) {
-            rightRules->insert(patterns[i]);
+            std::cout << "rightinsert\n";
+            rightRules->insert(patterns[i], patterns[i]);
         }
         if (!(bottomRules->contains(patterns[i]))) {
-            bottomRules->insert(patterns[i]);
+            std::cout << "bottominsert\n";
+            bottomRules->insert(patterns[i], patterns[i]);
         }
+        std::cout << topRules->getNumberOfElements() << "\n";
+        std::cout << leftRules->getNumberOfElements() << "\n";
+        std::cout << rightRules->getNumberOfElements() << "\n";
+        std::cout << bottomRules->getNumberOfElements() << "\n";
     }
 
+    for (int i = 0; i < cnt; i++) {
+        std::cout << topRules->get(i).head->pat.pixels << "\n";
+        std::cout << leftRules->get(i).head->pat.pixels << "\n";
+        std::cout << rightRules->get(i).head->pat.pixels << "\n";
+        std::cout << bottomRules->get(i).head->pat.pixels << "\n";
+        std::cout << topRules->get(i).length << "\n";
+        std::cout << leftRules->get(i).length << "\n";
+        std::cout << rightRules->get(i).length << "\n";
+        std::cout << bottomRules->get(i).length << "\n";
+    }
+    
     // Add adjacent patterns
-    for (int i = 0; i < topRules->getLength(); i++) {
+    for (int i = 0; i < cnt; i++) {
         for (int j = 0; j < patterns.size(); j++) {
             if (patterns[j].pixels == topRules->get(i).head->pat.pixels) {
+                std::cout << i << " " << j << "\n";
                 if (j >= img.x/N) { // If we're on the second row or below, we can have a pattern above
-                    topRules->insert(patterns[j-img.x]);
+                    std::cout << "topinsert\n";
+                    topRules->insert(i, patterns[j-img.x/N]);
                 }
                 if ((j%(img.x/N)) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
-                    leftRules->insert(patterns[j-1]); 
+                    std::cout << "leftinsert\n";
+                    leftRules->insert(i, patterns[j-1]); 
                 }
-                if ((j%((img.x/N)-1)) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
-                    rightRules->insert(patterns[j+1]); 
+                if ((j%(img.x/N)) < ((img.x/N)-1)) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+                    std::cout << "rightinsert\n";
+                    rightRules->insert(i, patterns[j+1]); 
                 }
                 if ((j) < (patterns.size()-(img.x/N))) { // If we're at least one row before the end, we can have a pattern below
-                    bottomRules->insert(patterns[j+img.x]);
+                    std::cout << "bottominsert\n";
+                    bottomRules->insert(i, patterns[j+img.x/N]);
                 }
             }
         }
+        std::cout << "Test?\n";
+        std::cout << topRules->get(0).head->pat.pixels << "\n";
     }
 
     adjacencyRules.push_back(*topRules);
     adjacencyRules.push_back(*leftRules);
     adjacencyRules.push_back(*rightRules);
     adjacencyRules.push_back(*bottomRules);
+
+    for (int i = 0; i < adjacencyRules[0].getNumberOfElements(); i++) {
+        node* traverser = adjacencyRules[0].get(i).head;
+        std::cout << adjacencyRules[0].get(i).length << "\n";
+        for (int j = 1; j < adjacencyRules[0].get(i).length; j++) {
+            std::cout << traverser << "\n";
+            traverser = traverser->next;
+            std::cout << traverser->pat.pixels << "\n";   
+        }
+        std::cout << "\n\n\n\n";
+    }
 }
 
 // Generate output image
 void WFC::generateOutput(int N, int X, int Y) {
     outputX = X;
     outputY = Y;
-    for (int j = 0; j < outputY/N; j+=N) {
-        for (int k = 0; k < outputX/N; k+=N) {
+    for (int j = 0; j < outputY/N; j++) {
+        for (int k = 0; k < outputX/N; k++) {
             Wave* w = (Wave*)(malloc(sizeof(Wave)));
             std::copy(patterns.begin(), patterns.end(), std::back_inserter(w->possiblePatterns));
             w->propagated = false;
@@ -121,12 +162,12 @@ int WFC::propagate(int id) {
     /*if (checkPropagation()) {
         return 0;
     }*/
-    Queue<Wave> queue;
+    /*Queue<Wave> queue;
     queue.push(output[id]);
     while (queue.size() > 0)
     {
         Wave wave
-    }
+    }*/
 
     int NValue = output[0].possiblePatterns[0].N;
     int outputx = outputX/NValue;

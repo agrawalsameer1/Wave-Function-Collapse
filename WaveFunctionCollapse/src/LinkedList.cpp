@@ -14,23 +14,44 @@
 LinkedList::LinkedList()
 {
     head = (node*)(malloc(sizeof(node)));
+    head->next = nullptr;
     length = 0;
 }
 
 LinkedList::LinkedList(Pattern pat) {
-    head = (node*)(malloc(sizeof(node)));;
+    head = (node*)(malloc(sizeof(node)));
     head->pat = pat;
-    length = 0;
+    head->next = nullptr;
+    length = 1;
 }
 
 // Inserts an item at the end of the list.
-void LinkedList::insert(node * newElement )
+void LinkedList::insert(node* newElement )
 {
-    node* current = head;
-    while (current->next != nullptr) {
-        current = current->next;
+    newElement->next = nullptr;
+
+    if (length == 0) {
+        head = newElement;
+        //std::cout << "no head\n";
     }
-    current->next = newElement;
+    else if (length == 1) {
+        head->next = newElement;
+        std::cout << "no head next\n";
+        //std::cout << head->pat.N << "\n";
+    }
+    else {
+        std::cout << "else this\n";
+        //std::cout << "head N:" << head->pat.N << "\n";
+        node* current = head;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        //std::cout << "insert called\n";
+        current->next = newElement;
+        //std::cout << "head N:" << head->pat.N << "\n";
+        //std::cout << current->next << "\n";
+    }
+
     length++;
   // * * * * * * * * * * *
   // Your code goes here

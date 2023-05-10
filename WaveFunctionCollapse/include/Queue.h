@@ -25,5 +25,5 @@ public:
 	void push(T* item);
 	T* top();
 	void pop();
-	int size();
+	int getSize();
 };
