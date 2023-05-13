@@ -125,6 +125,7 @@ void WFC::generateOutput(int N, int X, int Y) {
     output.clear();
     for (int j = 0; j < outputY/N; j++) {
         for (int k = 0; k < outputX/N; k++) {
+            std::cout << "i love men " << j*(outputX/N)+k << "\n";
             Wave* w = (Wave*)(malloc(sizeof(Wave)));
             for (int i = 0; i < adjacencyRules[0].getNumberOfElements(); i++) {
                 w->possiblePatterns.push_back(adjacencyRules[0].get(i)->head->pat);
@@ -132,6 +133,7 @@ void WFC::generateOutput(int N, int X, int Y) {
             output.push_back(*w);
         }
     }
+    exit(1);
 }
 
 bool WFC::checkPropagation() {
@@ -357,6 +359,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
         // Alternatively, if there is a contradiction, this works to reset the output and try again
         generateOutput(N, outputX, outputY);
         std::cout << "generating!\n";
+        //exit(1);
         while (!(complete)) {
             // collapse Wave with the least entropy
             int collapsedId = observe();
