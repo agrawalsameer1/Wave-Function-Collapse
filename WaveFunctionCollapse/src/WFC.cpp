@@ -8,23 +8,26 @@
 // Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
 
 // Generate adjacency rules from input img
-void WFC::ruleGeneration(PPMImage img, int N) {
+void WFC::ruleGeneration(PPMImage* img, int N) {
     std::cout << "what's good" << std::endl;
     // Extract all NxN tiles from input image
-    for (int i = 0; i < img.y; i+=N) {
-        for (int j = 0; j < img.x; j+=N) {
+    for (int i = 0; i < img->y; i+=N) {
+        for (int j = 0; j < img->x; j+=N) {
             Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
             //Pattern* pattern = new Pattern;
-            pattern->id = (((i*img.x)/(N*N))+(j/N)); // i have no clue what this means but we give every Pattern an id i guess??
+            pattern->id = (((i*img->x)/(N*N))+(j/N)); // i have no clue what this means but we give every Pattern an id i guess??
             std::cout << pattern->id << std::endl;
             // write NxN section of image to the Pattern
             pattern->N = N;
-            pattern->pixels = *(new PPMImage(N,N));
+            PPMImage pixs = *(new PPMImage(N,N));
             for (int k = 0; k < N; k++) {
                 for (int l = 0; l < N; l++) {
-                    pattern->pixels.writePixel(l,k,img.pixelAt(j+l,i+k));
+                    PPMPixel pixie = img->pixelAt(j+l,i+k);
+                    pixs.writePixel(l,k,&(pixie));
                 }
             }
+            std::cout << "we win these\n";
+            pattern->pixels = pixs;
             std::cout << pattern->pixels << "\n";
             patterns.push_back(*pattern);
         }
@@ -56,82 +59,63 @@ void WFC::ruleGeneration(PPMImage img, int N) {
     std::cout << "reached here!\n";
 
     // Insert each unique pattern in input image as a key into each hash table
+    cnt = 0;
     for (int i = 0; i < patterns.size(); i++) {
-        if (!(topRules->contains(patterns[i]))) {
+        if (!(topRules->contains(&patterns[i]))) {
             std::cout << "topinsert\n";
-            topRules->insert(patterns[i], patterns[i]);
-        }
-        if (!(leftRules->contains(patterns[i]))) {
+            topRules->insert(cnt, &patterns[i]);
             std::cout << "leftinsert\n";
-            leftRules->insert(patterns[i], patterns[i]);
-        }
-        if (!(rightRules->contains(patterns[i]))) {
+            leftRules->insert(cnt, &patterns[i]);
             std::cout << "rightinsert\n";
-            rightRules->insert(patterns[i], patterns[i]);
-        }
-        if (!(bottomRules->contains(patterns[i]))) {
+            rightRules->insert(cnt, &patterns[i]);
             std::cout << "bottominsert\n";
-            bottomRules->insert(patterns[i], patterns[i]);
+            bottomRules->insert(cnt, &patterns[i]);
+            cnt++;
         }
         std::cout << topRules->getNumberOfElements() << "\n";
         std::cout << leftRules->getNumberOfElements() << "\n";
         std::cout << rightRules->getNumberOfElements() << "\n";
         std::cout << bottomRules->getNumberOfElements() << "\n";
     }
-
-    for (int i = 0; i < cnt; i++) {
-        std::cout << topRules->get(i).head->pat.pixels << "\n";
-        std::cout << leftRules->get(i).head->pat.pixels << "\n";
-        std::cout << rightRules->get(i).head->pat.pixels << "\n";
-        std::cout << bottomRules->get(i).head->pat.pixels << "\n";
-        std::cout << topRules->get(i).length << "\n";
-        std::cout << leftRules->get(i).length << "\n";
-        std::cout << rightRules->get(i).length << "\n";
-        std::cout << bottomRules->get(i).length << "\n";
-    }
     
     // Add adjacent patterns
     for (int i = 0; i < cnt; i++) {
+        PPMImage patty = topRules->get(i)->head->pat.pixels;
+        std::cout << "new head reached!\n" << patty << "\n";
         for (int j = 0; j < patterns.size(); j++) {
-            if (patterns[j].pixels == topRules->get(i).head->pat.pixels) {
+            
+            if (patterns[j].pixels == patty) {
                 std::cout << i << " " << j << "\n";
-                if (j >= img.x/N) { // If we're on the second row or below, we can have a pattern above
-                    std::cout << "topinsert\n";
-                    topRules->insert(i, patterns[j-img.x/N]);
+                if (j >= img->x/N) { // If we're on the second row or below, we can have a pattern above
+                    //std::cout << "topinsert\n";
+                    topRules->insert(i, &patterns[j-img->x/N]);
+                    //std::cout << "inserting:\n" << patterns[j-img->x/N].pixels << "\n";
                 }
-                if ((j%(img.x/N)) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
-                    std::cout << "leftinsert\n";
-                    leftRules->insert(i, patterns[j-1]); 
+                if ((j%(img->x/N)) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
+                    //std::cout << "leftinsert\n";
+                    leftRules->insert(i, &patterns[j-1]); 
+                    //std::cout << "inserting:\n" << patterns[j-1].pixels << "\n";
                 }
-                if ((j%(img.x/N)) < ((img.x/N)-1)) { // If we're at least one tile before the end of a row, we can have a pattern to the right
-                    std::cout << "rightinsert\n";
-                    rightRules->insert(i, patterns[j+1]); 
+                if ((j%(img->x/N)) < ((img->x/N)-1)) { // If we're at least one tile before the end of a row, we can have a pattern to the right
+                    //std::cout << "rightinsert\n";
+                    rightRules->insert(i, &patterns[j+1]); 
+                    //std::cout << "inserting:\n" << patterns[j+1].pixels << "\n";
                 }
-                if ((j) < (patterns.size()-(img.x/N))) { // If we're at least one row before the end, we can have a pattern below
-                    std::cout << "bottominsert\n";
-                    bottomRules->insert(i, patterns[j+img.x/N]);
+                if ((j) < (patterns.size()-(img->x/N))) { // If we're at least one row before the end, we can have a pattern below
+                    //std::cout << "bottominsert\n";
+                    bottomRules->insert(i, &patterns[j+img->x/N]);
+                    //std::cout << "inserting:\n" << patterns[j+img->x/N].pixels << "\n";
                 }
+                //std::cout << topRules->get(0).length << "\n";
             }
         }
-        std::cout << "Test?\n";
-        std::cout << topRules->get(0).head->pat.pixels << "\n";
+        
     }
 
     adjacencyRules.push_back(*topRules);
     adjacencyRules.push_back(*leftRules);
     adjacencyRules.push_back(*rightRules);
     adjacencyRules.push_back(*bottomRules);
-
-    for (int i = 0; i < adjacencyRules[0].getNumberOfElements(); i++) {
-        node* traverser = adjacencyRules[0].get(i).head;
-        std::cout << adjacencyRules[0].get(i).length << "\n";
-        for (int j = 1; j < adjacencyRules[0].get(i).length; j++) {
-            std::cout << traverser << "\n";
-            traverser = traverser->next;
-            std::cout << traverser->pat.pixels << "\n";   
-        }
-        std::cout << "\n\n\n\n";
-    }
 }
 
 // Generate output image
@@ -177,8 +161,8 @@ int WFC::propagate(int id) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
-                LinkedList possibles = adjacencyRules[0].get(pat); // Get all possible above patterns for the pattern we just collapsed
-                if (possibles.contains(output[id - outputx].possiblePatterns[i])) {
+                LinkedList* possibles = adjacencyRules[0].get(&pat); // Get all possible above patterns for the pattern we just collapsed
+                if (possibles->contains(output[id - outputx].possiblePatterns[i])) {
                     possible = true;
                 }
             }
@@ -200,8 +184,8 @@ int WFC::propagate(int id) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
-                LinkedList possibles = adjacencyRules[1].get(pat); // Get all possible patterns to the left of the pattern we just collapsed
-                if (possibles.contains(output[id - 1].possiblePatterns[i])) {
+                LinkedList* possibles = adjacencyRules[1].get(&pat); // Get all possible patterns to the left of the pattern we just collapsed
+                if (possibles->contains(output[id - 1].possiblePatterns[i])) {
                     possible = true;
                 }
             }
@@ -223,8 +207,8 @@ int WFC::propagate(int id) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
             Pattern pat = output[id].possiblePatterns[it];
-                LinkedList possibles = adjacencyRules[2].get(pat); // Get all possible patterns to the right of the pattern we just collapsed
-                if (possibles.contains(output[id + 1].possiblePatterns[i])) {
+                LinkedList* possibles = adjacencyRules[2].get(&pat); // Get all possible patterns to the right of the pattern we just collapsed
+                if (possibles->contains(output[id + 1].possiblePatterns[i])) {
                     possible = true;
                 }
             }
@@ -246,8 +230,8 @@ int WFC::propagate(int id) {
             bool possible = false;
             for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
                 Pattern pat = output[id].possiblePatterns[it];
-                LinkedList possibles = adjacencyRules[3].get(pat); // Get all possible below patterns for the pattern we just collapsed
-                if (possibles.contains(output[id + outputx].possiblePatterns[i])) {
+                LinkedList* possibles = adjacencyRules[3].get(&pat); // Get all possible below patterns for the pattern we just collapsed
+                if (possibles->contains(output[id + outputx].possiblePatterns[i])) {
                     possible = true;
                 }
             }
@@ -314,7 +298,7 @@ bool WFC::contradiction() {
     return false;
 }
 
-PPMImage WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
+PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
     bool contradicts = true;
     bool complete = false;
     ruleGeneration(input, N); // create the adjacency rules
@@ -332,12 +316,15 @@ PPMImage WFC::collapse(PPMImage input, int N, int outputX, int outputY) {
             std::cout << "Reached here2!\n";
             contradicts = contradiction(); // Check for contradictions (if one or more Waves are impossible to collapse)
             if (contradicts) {
+                std::cout << "bad\n";
                 break; // start over...
+
             }
             complete = completed(); // check if everything is collapsed
         }
     }
     // Create .ppm image and return
+    std::cout << "reached here3?\n";
     PPMImage returned = buildOutput();
     return returned;
 }
@@ -351,7 +338,8 @@ PPMImage WFC::buildOutput() {
         for (int l = 0; l < outputX/NValue; l++) {
             for (int j = 0; j < NValue; j++) {
                 for (int k = 0; k < NValue; k++) {
-                    out.writePixel(NValue*l+k, NValue*i+j, output[i*outputX+l].possiblePatterns[0].pixels.pixelAt(k,j));
+                    PPMPixel pixies = output[i*outputX+l].possiblePatterns[0].pixels.pixelAt(k,j);
+                    out.writePixel(NValue*l+k, NValue*i+j, &(pixies));
                 }
             }
         }

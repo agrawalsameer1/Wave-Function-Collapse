@@ -18,6 +18,6 @@ int main() {
     PPMImage* input = new PPMImage("../WaveFunctionCollapse/images/Forest.ppm");
     //std::ifstream myfile("pixels.txt");
     std::cout << (*input) << std::endl;
-    PPMImage output = wfc->collapse(*input, 2, 100,100);
+    PPMImage output = wfc->collapse(input, 2, 100,100);
     output.saveImage("output.ppm");
 }

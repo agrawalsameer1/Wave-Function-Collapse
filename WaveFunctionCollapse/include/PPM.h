@@ -22,8 +22,9 @@ class PPMImage {
 
         PPMImage(int X, int Y);
         PPMImage(const char *filename);
-        void writePixel(int x, int y, PPMPixel pix);
+        void writePixel(int x, int y, PPMPixel* pix);
         PPMPixel pixelAt(int xcoord, int ycoord);
+        void operator=(PPMImage img);
         bool operator==(PPMImage img);
         void saveImage(const char *filename);
         friend std::ostream& operator<<(std::ostream& os, PPMImage img);

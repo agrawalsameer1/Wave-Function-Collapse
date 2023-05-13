@@ -30,7 +30,11 @@ public:
     LinkedList();
 
     // Constructs linked list object with head node containing the WFC::Pattern
-    LinkedList(Pattern pat);
+    LinkedList(Pattern* pat);
+
+    LinkedList(node* head);
+
+    void operator =(LinkedList link);
 
     bool contains(Pattern pat);
     

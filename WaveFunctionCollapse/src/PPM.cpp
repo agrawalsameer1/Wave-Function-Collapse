@@ -84,13 +84,25 @@ PPMImage::PPMImage(const char *filename) {
     //fclose(fp);
 }
 
-void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel pix) {
-    data[xcoord+ycoord*x] = pix;
+void PPMImage::writePixel(int xcoord, int ycoord, PPMPixel* pix) {
+    data[xcoord+ycoord*x] = *pix;
 }
 
 PPMPixel PPMImage::pixelAt(int xcoord, int ycoord) {
     PPMPixel pix = data[x*ycoord+xcoord];
     return pix;
+}
+
+void PPMImage::operator=(PPMImage img) {
+    x = img.x;
+    y = img.y;
+    data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
+    for (int i = 0; i < img.y; i++) {
+        for (int j = 0; j < img.x; j++) {
+            PPMPixel pix = img.pixelAt(j,i);
+            writePixel(j,i,&(pix));
+        }
+    }
 }
 
 bool PPMImage::operator==(PPMImage img) {

@@ -18,29 +18,52 @@ LinkedList::LinkedList()
     length = 0;
 }
 
-LinkedList::LinkedList(Pattern pat) {
+LinkedList::LinkedList(Pattern* pat) {
     head = (node*)(malloc(sizeof(node)));
-    head->pat = pat;
+    head->pat = *pat;
     head->next = nullptr;
     length = 1;
+}
+
+LinkedList::LinkedList(node* heady) {
+    head = heady;
+    node* traverser = heady;
+    length = 0;
+    while (traverser != nullptr) {
+        length++;
+        traverser = traverser->next;
+    }
+}
+
+void LinkedList::operator=(LinkedList l) {
+    node* traverser = l.head;
+    node* traverser2 = head;
+    length = l.length;
+
+    while (traverser != nullptr) {
+        traverser2->pat = traverser->pat;
+        traverser2->next = traverser->next;
+        traverser2 = traverser2->next;
+        traverser = traverser->next;
+    }
 }
 
 // Inserts an item at the end of the list.
 void LinkedList::insert(node* newElement )
 {
-    newElement->next = nullptr;
+    //std::cout << "\nin insert\n";
 
     if (length == 0) {
-        head = newElement;
+        head->pat = newElement->pat;
+        head->next = nullptr;
         //std::cout << "no head\n";
     }
     else if (length == 1) {
         head->next = newElement;
-        std::cout << "no head next\n";
+        //std::cout << "no head next\n";
         //std::cout << head->pat.N << "\n";
     }
     else {
-        std::cout << "else this\n";
         //std::cout << "head N:" << head->pat.N << "\n";
         node* current = head;
         while (current->next != nullptr) {
@@ -51,7 +74,6 @@ void LinkedList::insert(node* newElement )
         //std::cout << "head N:" << head->pat.N << "\n";
         //std::cout << current->next << "\n";
     }
-
     length++;
   // * * * * * * * * * * *
   // Your code goes here
