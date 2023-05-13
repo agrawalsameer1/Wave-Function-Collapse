@@ -26,19 +26,19 @@ void HashTable::operator=(HashTable h) {
     }
 }
 
-bool HashTable::contains(Pattern* pat) {
+bool HashTable::contains(Pattern* patt) {
     for (int i = 0; i < filled; i++) {
-        if (array[i]->head->pat.pixels == pat->pixels) {
+        if (array[i]->head->pat.pixels == patt->pixels) {
             return true;
         }
     }
     return false;
 }
 
-bool HashTable::contains(Pattern* pat, int len) {
+bool HashTable::contains(Pattern* patt, int len) {
     int max = len < filled ? len:filled;
     for (int i = 0; i < max; i++) {
-        if (array[i]->head->pat.pixels == pat->pixels) {
+        if (array[i]->head->pat.pixels == patt->pixels) {
             return true;
         }
     }
@@ -91,10 +91,10 @@ LinkedList* HashTable::get(int index) {
 
 // Returns an Element from the Hash Table by key.
 // If the Element isn't found, a null pointer is returned.
-LinkedList* HashTable::get(Pattern* pat)
+LinkedList* HashTable::get(Pattern* patt)
 {
     for (int i = 0; i < filled; i++) {
-        if (array[i]->head->pat.pixels == pat->pixels) {
+        if (array[i]->head->pat.pixels == patt->pixels) {
             return array[i];
         }
     }

@@ -12,6 +12,7 @@ class PPMPixel{
     public:
         unsigned char red,green,blue; // int between 0 and 255
         std::string toString();
+        std::string toStringBGR();
         bool operator==(PPMPixel pix);
 };
 

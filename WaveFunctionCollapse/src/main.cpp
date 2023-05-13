@@ -15,21 +15,23 @@ int main() {
     system(command.c_str());
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));*/
 
-    PPMImage* input = new PPMImage("../WaveFunctionCollapse/images/Forest.ppm");
+    PPMImage* input = new PPMImage("../WaveFunctionCollapse/images/wsp.ppm");
     //std::ifstream myfile("pixels.txt");
     std::cout << (*input) << std::endl;
+    //exit(1);
     PPMImage output = wfc->collapse(input, 2, 100,100);
+    std::cout << output << "\n";
     output.saveImage("output.ppm");
-    std::string pixelData = output.toStringBGR();
+    /*std::string pixelData = output.toStringBGR();
     ofstream outFile;
     outFile.open("pixels.txt", ios::out);
     outFile << pixelData;
-    outFile.close();
+    outFile.close();*/
 
-    std::cout << "Calling python script to convert pixel output to a PNG image:\n";
+    /*std::cout << "Calling python script to convert pixel output to a PNG image:\n";
     std::string filename = "pixelsToPNG.py";
     std::string command = "python ";
     command += filename;
-    system(command.c_str());
+    system(command.c_str());*/
     //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 }

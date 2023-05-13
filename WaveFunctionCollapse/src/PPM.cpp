@@ -28,6 +28,12 @@ std::string PPMPixel::toStringBGR() {
     return st;
 }
 
+PPMImage::PPMImage() {
+    x = 10;
+    y = 10;
+    data = (PPMPixel*)(malloc(100 * sizeof(PPMPixel)));
+}
+
 PPMImage::PPMImage(int X, int Y) {
     x = X;
     y = Y;
@@ -146,15 +152,15 @@ std::ostream& operator<<(std::ostream& os, PPMImage img) {
 
 void PPMImage::saveImage(const char *filename) {
     std::ofstream fout(filename);
-    fout << "P3\n";
+    fout << "P6\n";
     fout << x << " " << y << "\n";
     fout << "255\n";
 
     for (int i = 0; i < y; i++) {
         for (int j = 0; j < x; j++) {
-            fout << pixelAt(j,i).red << " ";
-            fout << pixelAt(j,i).green << " ";
-            fout << pixelAt(j,i).blue << "\n";
+            fout << static_cast<unsigned>(pixelAt(j,i).red) << " ";
+            fout << static_cast<unsigned>(pixelAt(j,i).green) << " ";
+            fout << static_cast<unsigned>(pixelAt(j,i).blue) << "\n";
         }
     }
     fout.close();

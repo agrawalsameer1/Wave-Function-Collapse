@@ -125,15 +125,19 @@ void WFC::generateOutput(int N, int X, int Y) {
     output.clear();
     for (int j = 0; j < outputY/N; j++) {
         for (int k = 0; k < outputX/N; k++) {
-            std::cout << "i love men " << j*(outputX/N)+k << "\n";
-            Wave* w = (Wave*)(malloc(sizeof(Wave)));
+            //std::cout << "i love men " << j*(outputX/N)+k << "\n";
+            Wave* w = new Wave;
+            w->propagated = false;
             for (int i = 0; i < adjacencyRules[0].getNumberOfElements(); i++) {
                 w->possiblePatterns.push_back(adjacencyRules[0].get(i)->head->pat);
+                w->possiblePatterns[i].pixels = adjacencyRules[0].get(i)->head->pat.pixels;
+                w->possiblePatterns[i].N = adjacencyRules[0].get(i)->head->pat.N;
+                w->possiblePatterns[i].id = adjacencyRules[0].get(i)->head->pat.id;
             }
             output.push_back(*w);
         }
     }
-    exit(1);
+    //exit(1);
 }
 
 bool WFC::checkPropagation() {
@@ -156,7 +160,8 @@ int WFC::propagate(int id) {
     {
         Wave wave
     }*/
-
+    //Pattern pat = output[id].possiblePatterns[it];
+    std::cout << "size of propagated: " << output[id].possiblePatterns[0].N << "\n";
     int NValue = output[0].possiblePatterns[0].N;
     int outputx = outputX/NValue;
     if (id >= outputx) { // If we're on the second row or below, we can have a pattern above
@@ -166,14 +171,19 @@ int WFC::propagate(int id) {
             while (i < output[id - outputx].possiblePatterns.size()) {
                 bool possible = false;
                 for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                    std::cout << id << "\n";
                     Pattern pat = output[id].possiblePatterns[it];
+                    std::cout << pat.N << "\n";
                     LinkedList* possibles = adjacencyRules[0].get(&pat); // Get all possible above patterns for the pattern we just collapsed
+                    std::cout << "length of possible patterns: " << possibles->getLength() << "\n";
                     if (possibles->contains(output[id - outputx].possiblePatterns[i])) {
                         possible = true;
                     }
                 }
                 if (!(possible)) {
+                    std::cout << "original size: " << output[id-outputx].possiblePatterns.size() << "\n";
                     output[id - outputx].possiblePatterns.erase(output[id - outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be above the one we just collapsed
+                    std::cout << "final size: " << output[id-outputx].possiblePatterns.size() << "\n";
                 }
                 else {
                     i++;
@@ -274,7 +284,7 @@ int WFC::observe()
     // Using GOOD RANDOM NUMBER GENERATION (std::rand() is BAD)
     std::random_device rd; 
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(0, output.size());
+    std::uniform_int_distribution<> distr(0, output.size()-1);
     int choice2 = distr(gen);
     int smallestLength = output[choice2].possiblePatterns.size();
     int smallestId = choice2;
@@ -291,13 +301,16 @@ int WFC::observe()
     // Pick a random Pattern index
     std::random_device rd2; 
     std::mt19937 gen2(rd2());
-    std::cout << output[smallestId].possiblePatterns.size() << "\n";
-    std::uniform_int_distribution<> distr2(0, output[smallestId].possiblePatterns.size());
+    std::cout << "size of smallest: " << output[smallestId].possiblePatterns.size() << "\n";
+    std::uniform_int_distribution<> distr2(0, output[smallestId].possiblePatterns.size()-1);
+    
     int choice = distr2(gen2);
+    std::cout << "size of smallest: " << output[smallestId].possiblePatterns[choice].N << "\n";
 
     // Effectively remove all Patterns other than the selected Pattern
     vector<Pattern> newOutput;
     newOutput.push_back(output[smallestId].possiblePatterns[choice]);
+
     output[smallestId].possiblePatterns.resize(1);
     output[smallestId].possiblePatterns[0] = newOutput[0];
     std::cout << "done with obserev3!\n";
@@ -353,7 +366,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
     bool complete = false;
     ruleGeneration(input, N); // create the adjacency rules
     std::cout << "Reached here!\n";
-
+    int interations = 0;
     while (contradicts) {            
         // Set up the image
         // Alternatively, if there is a contradiction, this works to reset the output and try again
@@ -366,20 +379,23 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
             std::cout << "Entropy of collapsed: " << calcEntropy(collapsedId) << "\n";
             // propogate information from the collapsed Wave to the rest of the Waves
             propagate(collapsedId);
-            std::cout << "Reached here2!\n";
-            std::cout << maxEntropy() << "\n";
+            //std::cout << "Reached here2!\n";
+            //std::cout << maxEntropy() << "\n";
             contradicts = contradiction(); // Check for contradictions (if one or more Waves are impossible to collapse)
             if (contradicts) {
                 std::cout << "bad\n";
+                exit(1);
                 break; // start over...
 
             }
             complete = completed(); // check if everything is collapsed
-            std::cout << complete << "\n";
+            std::cout << "Am i complete: " << complete << "\n";
+            interations++;
         }
     }
     // Create .ppm image and return
     std::cout << "reached here3?\n";
+    std::cout << "took " << interations << " iterations\n";
     PPMImage returned = buildOutput();
     return returned;
 }
@@ -393,7 +409,7 @@ PPMImage WFC::buildOutput() {
         for (int l = 0; l < outputX/NValue; l++) {
             for (int j = 0; j < NValue; j++) {
                 for (int k = 0; k < NValue; k++) {
-                    PPMPixel pixies = output[i*outputX+l].possiblePatterns[0].pixels.pixelAt(k,j);
+                    PPMPixel pixies = output[i*outputX/NValue+l].possiblePatterns[0].pixels.pixelAt(k,j);
                     out.writePixel(NValue*l+k, NValue*i+j, &(pixies));
                 }
             }
