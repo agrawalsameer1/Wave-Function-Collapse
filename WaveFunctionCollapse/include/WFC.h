@@ -30,6 +30,8 @@ public:
 	bool completed();
 	// Returns whether there is a contradiction: whether there are 0 possible patterns for an element in the output
 	bool contradiction();
+
+	void reset();
 	// Collapse function, puts all functions together
 	PPMImage collapse(PPMImage* input, int N, int outputX, int outputY);
 	// Create output PPM Image

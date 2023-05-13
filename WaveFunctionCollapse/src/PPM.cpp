@@ -158,9 +158,9 @@ void PPMImage::saveImage(const char *filename) {
 
     for (int i = 0; i < y; i++) {
         for (int j = 0; j < x; j++) {
-            fout << static_cast<unsigned>(pixelAt(j,i).red) << " ";
-            fout << static_cast<unsigned>(pixelAt(j,i).green) << " ";
-            fout << static_cast<unsigned>(pixelAt(j,i).blue) << "\n";
+            fout << pixelAt(j,i).red;
+            fout << pixelAt(j,i).green;
+            fout << pixelAt(j,i).blue;
         }
     }
     fout.close();

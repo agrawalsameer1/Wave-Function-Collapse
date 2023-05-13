@@ -15,11 +15,11 @@ int main() {
     system(command.c_str());
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));*/
 
-    PPMImage* input = new PPMImage("../WaveFunctionCollapse/images/wsp.ppm");
+    PPMImage* input = new PPMImage("../WaveFunctionCollapse/images/Village.ppm");
     //std::ifstream myfile("pixels.txt");
     std::cout << (*input) << std::endl;
     //exit(1);
-    PPMImage output = wfc->collapse(input, 2, 100,100);
+    PPMImage output = wfc->collapse(input, 4,16,16);
     std::cout << output << "\n";
     output.saveImage("output.ppm");
     /*std::string pixelData = output.toStringBGR();
