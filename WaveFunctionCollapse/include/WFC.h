@@ -22,6 +22,10 @@ public:
 	bool checkPropagation();
 	// Propagates the information from one cell to all other cells. Not recursive since we need to implement data strucures for credit. :(
 	int propagate(int id);
+	// Counts number of unique possible patterns in a cell and returns
+	int calcEntropy(int id);
+	// Returns the maximum entropy of all cells in the output
+	int maxEntropy();
 	// Returns whether algorithm has completed
 	bool completed();
 	// Returns whether there is a contradiction: whether there are 0 possible patterns for an element in the output

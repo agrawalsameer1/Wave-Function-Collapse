@@ -19,7 +19,8 @@ class PPMImage {
     public:
         int x, y;
         PPMPixel* data;
-
+        
+        PPMImage();
         PPMImage(int X, int Y);
         PPMImage(const char *filename);
         void writePixel(int x, int y, PPMPixel* pix);

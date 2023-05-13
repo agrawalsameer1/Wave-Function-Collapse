@@ -16,6 +16,12 @@ std::string PPMPixel::toString() {
     return st;
 }
 
+PPMImage::PPMImage() {
+    x = 10;
+    y = 10;
+    data = (PPMPixel*)(malloc(x * y * sizeof(PPMPixel)));
+}
+
 PPMImage::PPMImage(int X, int Y) {
     x = X;
     y = Y;
