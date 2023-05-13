@@ -20,4 +20,16 @@ int main() {
     std::cout << (*input) << std::endl;
     PPMImage output = wfc->collapse(input, 2, 100,100);
     output.saveImage("output.ppm");
+    std::string pixelData = output.toStringBGR();
+    ofstream outFile;
+    outFile.open("pixels.txt", ios::out);
+    outFile << pixelData;
+    outFile.close();
+
+    std::cout << "Calling python script to convert pixel output to a PNG image:\n";
+    std::string filename = "pixelsToPNG.py";
+    std::string command = "python ";
+    command += filename;
+    system(command.c_str());
+    //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 }
