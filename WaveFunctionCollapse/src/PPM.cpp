@@ -165,3 +165,20 @@ void PPMImage::saveImage(const char *filename) {
     }
     fout.close();
 }
+
+std::string PPMImage::toStringBGR()
+{
+    std::string ret = "";
+    for (int i = 0; i < y; i++)
+    {
+        std::string line = "";
+        for (int j = 0; j < x; j++)
+        {
+            std::string pix = pixelAt(j,i).toStringBGR() + " ";
+            line += pix;
+        }
+        ret += line + "\n";
+        std::cout << ret << '\n';
+    }
+    return ret;
+}
