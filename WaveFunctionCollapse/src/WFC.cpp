@@ -400,12 +400,14 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
             contradicts = contradiction(); // Check for contradictions (if one or more Waves are impossible to collapse)
             if (contradicts) {
                 //std::cout << "bad\n";
+                interations = 0;
                 break; // start over...
 
             }
             complete = completed(); // check if everything is collapsed
             //std::cout << "Am i complete: " << complete << "\n";
             interations++;
+            std::cout << interations << '\n';
         }
     }
     // Create .ppm image and return

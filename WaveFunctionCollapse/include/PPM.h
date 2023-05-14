@@ -29,5 +29,6 @@ class PPMImage {
         void operator=(PPMImage img);
         bool operator==(PPMImage img);
         void saveImage(const char *filename);
+        std::string toStringBGR();
         friend std::ostream& operator<<(std::ostream& os, PPMImage img);
 };
