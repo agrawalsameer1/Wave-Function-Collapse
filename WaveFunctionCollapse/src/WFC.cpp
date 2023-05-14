@@ -91,20 +91,32 @@ void WFC::ruleGeneration(PPMImage* img, int N) {
                     topRules->insert(i, &patterns[j-img->x/N]);
                     //std::cout << "inserting:\n" << patterns[j-img->x/N].pixels << "\n";
                 }
+                else {
+                    topRules->insert(i, &patterns[patterns.size()-(img->x/N)+j]);
+                }
                 if ((j%(img->x/N)) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
                     //std::cout << "leftinsert\n";
                     leftRules->insert(i, &patterns[j-1]); 
                     //std::cout << "inserting:\n" << patterns[j-1].pixels << "\n";
+                }
+                else {
+                    leftRules->insert(i, &patterns[j+img->x/N-1]);
                 }
                 if ((j%(img->x/N)) < ((img->x/N)-1)) { // If we're at least one tile before the end of a row, we can have a pattern to the right
                     //std::cout << "rightinsert\n";
                     rightRules->insert(i, &patterns[j+1]); 
                     //std::cout << "inserting:\n" << patterns[j+1].pixels << "\n";
                 }
+                else {
+                    rightRules->insert(i, &patterns[j-img->x/N+1]);
+                }
                 if ((j) < (patterns.size()-(img->x/N))) { // If we're at least one row before the end, we can have a pattern below
                     //std::cout << "bottominsert\n";
                     bottomRules->insert(i, &patterns[j+img->x/N]);
                     //std::cout << "inserting:\n" << patterns[j+img->x/N].pixels << "\n";
+                }
+                else {
+                    bottomRules->insert(i, &patterns[j-(output.size()-img->x/N)]);
                 }
                 //std::cout << topRules->get(0).length << "\n";
             }
@@ -342,7 +354,7 @@ int WFC::maxEntropy() {
 
 bool WFC::completed() {
     for (int i = 0; i < output.size(); i++) {
-        if (calcEntropy(i) > 2) {
+        if (calcEntropy(i) > 1) {
             return false;
         }
     }
@@ -407,7 +419,7 @@ PPMImage WFC::buildOutput() {
     PPMImage out = PPMImage(outputX, outputY); // create blank image
     int NValue = output[0].possiblePatterns[0].N;
 
-    // Write to the image in NxN sections
+    // Write to the image in NxN sections< 2
     for (int i = 0; i < outputY/NValue; i++) {
         for (int l = 0; l < outputX/NValue; l++) {
             for (int j = 0; j < NValue; j++) {
