@@ -4,6 +4,7 @@
 #include "PPM.h"
 #include "HashTable.h"
 #include "Structures.h"
+#include "Queue.h"
 
 using namespace std;
 

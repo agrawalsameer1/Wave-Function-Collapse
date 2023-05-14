@@ -19,7 +19,7 @@ int main() {
     //std::ifstream myfile("pixels.txt");
     std::cout << (*input) << std::endl;
     //exit(1);
-    PPMImage output = wfc->collapse(input,6,18,18);
+    PPMImage output = wfc->collapse(input,3,18,18);
     std::cout << output << "\n";
     output.saveImage("maze.ppm");
     std::string pixelData = output.toStringBGR();
