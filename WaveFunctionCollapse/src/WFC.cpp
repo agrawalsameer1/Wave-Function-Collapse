@@ -1,10 +1,14 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <cmath>
 #include "../include/WFC.h"
 #include "../include/PPM.h"
 #include "../include/Queue.h"
 #include "../include/Structures.h"
+
+#define QUEUE_IMPLEMENTATION // Faster if left on
+//#define USE_SHANNON // Faster if left off
 
 // Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
 
@@ -168,7 +172,9 @@ int WFC::propagate(int id) {
 
 
     int NValue = output[0].possiblePatterns[0].N;
+    int outputx = outputX/NValue;
 
+    #ifdef QUEUE_IMPLEMENTATION
     // BFS IMPLEMENTATION WITH QUEUE
 
     Queue<Wave> queue;
@@ -179,7 +185,6 @@ int WFC::propagate(int id) {
         wave = queue.top();
         queue.pop();
         int currId = wave->id;
-        int outputx = outputX/NValue;
 
         // If we're on the second row or below, we can have a pattern above
         if (id >= outputx) { 
@@ -314,10 +319,9 @@ int WFC::propagate(int id) {
         
     }
 
-
+    #else
     // BFS IMPLEMENTATION WITH RECURSION
 
-    /*int outputx = outputX/NValue;
     // DONE
     if (id >= outputx) { // If we're on the second row or below, we can have a pattern above
         if (output[id-outputx].propagated == false) {
@@ -432,7 +436,9 @@ int WFC::propagate(int id) {
         }
         int newID = id+outputx;
         return propagate(newID);
-    }*/
+    }
+
+    #endif
 }
 
 int WFC::observe()
@@ -446,6 +452,16 @@ int WFC::observe()
     int smallestLength = output[choice2].possiblePatterns.size();
     int smallestId = choice2;
 
+    #ifdef USE_SHANNON
+    // Search for the Wave with the lowest Shannon entropy (if there are multiple, pick the first one in the vector of Waves) defined by calcShannonEntropy()
+    double minEntropy = calcShannonEntropy(0);
+    for (int i = 1; i < output.size(); i++) {
+        if (calcShannonEntropy(i) < minEntropy && output[i].possiblePatterns.size() > 1) {
+            smallestId = i;
+        }
+    }
+
+    #else
     // Search for the Wave with the lowest entropy (if there are multiple, pick the first one in the vector of Waves) defined by the number of possible Patterns it can be
     for (int i = 0; i < output.size(); i++) {
         if (output[i].possiblePatterns.size() < smallestLength && output[i].possiblePatterns.size() > 1) {
@@ -454,6 +470,7 @@ int WFC::observe()
         }
     }
     //std::cout << "done with obserev2!\n";
+    #endif
 
     // Pick a random Pattern index
     std::random_device rd2; 
@@ -500,6 +517,27 @@ int WFC::maxEntropy() {
     return maxEntropy;
 }
 
+double WFC::calcShannonEntropy(int id)
+{
+    std::vector<PPMImage> found;
+    double ent = 0;
+    int n = output[id].possiblePatterns.size();
+    for (int j = 0; j < n; j++) {
+        if (std::find(found.begin(), found.end(), output[id].possiblePatterns[j].pixels) == found.end()) {
+            double count = 0;
+            for (int i = 0; i < n; i++)
+            {
+                if (output[id].possiblePatterns[i].pixels == output[id].possiblePatterns[j].pixels) count++;
+            }
+            double p = count / n;
+            ent += log2(p) * p; // equation for Shannon entropy heuristic
+            found.push_back(output[id].possiblePatterns[j].pixels);
+        }
+    }
+    ent *= -1;
+    return ent;
+}
+
 bool WFC::completed() {
     for (int i = 0; i < output.size(); i++) {
         if (calcEntropy(i) > 1) {
@@ -530,6 +568,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
     ruleGeneration(input, N); // create the adjacency rules
     std::cout << "Reached here!\n";
     int interations = 0;
+    int tries = 1;
     while (contradicts) {        
         // Set up the image
         // Alternatively, if there is a contradiction, this works to reset the output and try again
@@ -549,6 +588,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
             if (contradicts) {
                 //std::cout << "bad\n";
                 interations = 0;
+                tries++;
                 break; // start over...
 
             }
@@ -560,7 +600,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
     }
     // Create .ppm image and return
     std::cout << "reached here3?\n";
-    std::cout << "took " << interations << " iterations\n";
+    std::cout << "took " << interations << " iterations after " << tries << " tries\n";
     PPMImage returned = buildOutput();
     return returned;
 }
