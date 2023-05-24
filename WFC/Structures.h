@@ -19,10 +19,8 @@ struct Pattern
 
 // The Wave structure defines the "domain" of each Element. It hosts a lists of all possible Patterns in a boolean array.
 // The Wave also contains information about its Shannon entropy: essentially, the number of possible patterns.
-// The Wave's ID represents its locaiton in the output vector.
 struct Wave
 {
     std::vector<Pattern> possiblePatterns;
     bool propagated;
-    int id;
 };

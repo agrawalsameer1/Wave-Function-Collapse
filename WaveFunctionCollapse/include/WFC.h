@@ -4,6 +4,7 @@
 #include "PPM.h"
 #include "HashTable.h"
 #include "Structures.h"
+#include "Queue.h"
 
 using namespace std;
 
@@ -24,6 +25,10 @@ public:
 	int propagate(int id);
 	// Counts number of unique possible patterns in a cell and returns
 	int calcEntropy(int id);
+	// Calculates the Shannon entropy of a Wave
+	double calcShannonEntropy(int id);
+	// Finds the Wave with the least Shannon entropy
+	double minShannonEntropy(int id);
 	// Returns the maximum entropy of all cells in the output
 	int maxEntropy();
 	// Returns whether algorithm has completed

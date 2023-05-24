@@ -1,9 +1,10 @@
 // WFC - Wave Function Collapse
-// LASA Advance CS 2
+// LASA Advanced CS
 // 2023
 
 #include <wx/wx.h>
-#include "ImageExpansionDialog.h"
+#include "WFC.h"
+#include "WaveFunctionCollapse/include/WFC.h"
  
 class MyApp : public wxApp
 {
@@ -12,38 +13,20 @@ public:
 };
  
 wxIMPLEMENT_APP(MyApp);
-
-class MyFrame : public wxFrame
-{
-public:
-    MyFrame();
- 
-private:
-    wxButton* m_ImageExpansionButton;
-    wxButton* m_SchedulerButton;
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    void OnImageExpansionStarted(wxCommandEvent& event);
-    void OnSchedulerStarted(wxCommandEvent& event);
-};
- 
-enum
-{
-    ID_IMAGEEXPANSION = 1,
-    ID_SCHEDULER = 2,
-    ID_IMAGEEXPANSION_BUTTON = 3,
-    ID_SCHEDULER_BUTTON = 4
-};
  
 bool MyApp::OnInit()
 {
+    #if wxUSE_LIBPNG
+        wxImage::AddHandler( new wxPNGHandler );
+    #endif
+
     MyFrame *frame = new MyFrame();
     frame->Show(true);
     return true;
 }
  
 MyFrame::MyFrame()
-    : wxFrame(nullptr, wxID_ANY, "WFC")
+    : wxFrame(nullptr, wxID_ANY, "WFC", wxPoint(0,25), wxSize(150,200))
 {
     wxMenu *menuApps = new wxMenu;
     menuApps->Append(ID_IMAGEEXPANSION, "&Image Expansion...");
@@ -69,7 +52,6 @@ MyFrame::MyFrame()
     Bind(wxEVT_BUTTON, &MyFrame::OnImageExpansionStarted, this, ID_IMAGEEXPANSION_BUTTON);
     Bind(wxEVT_BUTTON, &MyFrame::OnSchedulerStarted, this, ID_SCHEDULER_BUTTON);
 
-
     wxPanel *panel = new wxPanel(this);
 
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -77,10 +59,16 @@ MyFrame::MyFrame()
 
     m_ImageExpansionButton = new wxButton(panel, ID_IMAGEEXPANSION_BUTTON, "Image Expansion");
     sizer->Add(m_ImageExpansionButton, wxSizerFlags().Centre().Border());
-    m_SchedulerButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Test Button");
+    /*
+    m_SchedulerButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Schedule Generation");
     sizer->Add(m_SchedulerButton, wxSizerFlags().Centre().Border());
-    
-
+    m_TextButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Text Generation");
+    sizer->Add(m_TextButton, wxSizerFlags().Centre().Border());
+    m_MusicButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Music Generation");
+    sizer->Add(m_MusicButton, wxSizerFlags().Centre().Border());
+    m_SudokuButton = new wxButton(panel, ID_SCHEDULER_BUTTON, "Sudoku Solving");
+    sizer->Add(m_SudokuButton, wxSizerFlags().Centre().Border());
+    */
 }
  
 void MyFrame::OnExit(wxCommandEvent& event)
@@ -98,17 +86,52 @@ void MyFrame::OnImageExpansionStarted(wxCommandEvent& WXUNUSED(event))
 {
     SetStatusText("Run Image Expansion");
 
-    ImageExpansionDialog *imgexp= new ImageExpansionDialog(wxT("ImageExpansionDialog"));
-    imgexp->Show(true);
+    wxFileDialog dialog
+                 (
+                    this,
+                    "Testing open file dialog",
+                    wxEmptyString,
+                    wxEmptyString,
+                    wxString::Format
+                    (
+                        "Supported files (*.ppm)|*.ppm|PPM files (*.ppm)|*.ppm",
+                        wxFileSelectorDefaultWildcardStr,
+                        wxFileSelectorDefaultWildcardStr
+                    )
+                 );
 
+    dialog.CentreOnParent();
+    dialog.SetDirectory(wxGetHomeDir() + "/Desktop");
+    wxString filename;
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        filename = dialog.GetPath();
+       
+    }
+    
+    if ( !filename.empty() ) {
+        // WFC simulation
+        PPMImage* input = new PPMImage(filename.mb_str());
+        WFC * wfc = new WFC();
+        PPMImage output = wfc->collapse(input, 6, 18, 18);
+        std::string pixelData = output.toStringBGR();
+        ofstream outFile;
+        outFile.open("pixels.txt", ios::out);
+        outFile << pixelData;
+        outFile.close();
 
-/*
-    wxMessageDialog *dial = new wxMessageDialog(this, 
-      wxT("Are you sure to quit?"), wxT("Question"), 
-      wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-    dial->ShowModal();
-*/
+        // Use Python to convert pixel text file to PNG
+        std::string filename_python = "./WaveFunctionCollapse/src/pixelstoPNG.py";
+        std::string command = "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3 ";
+        command += filename_python;
+        system(command.c_str());
 
+        // Display output image
+        wxImage image;
+        image.LoadFile("output.png");
+        new MyImageFrame(this, "output.png", image, 0.1);
+        
+    }
 }
  
 void MyFrame::OnSchedulerStarted(wxCommandEvent& WXUNUSED(event))
@@ -117,6 +140,23 @@ void MyFrame::OnSchedulerStarted(wxCommandEvent& WXUNUSED(event))
     wxLogMessage("hi");
 }
 
+wxString MyFrame::LoadUserImage(wxImage& image)
+{
+    wxString filename;
 
+#if wxUSE_FILEDLG
+    filename = wxLoadFileSelector("image", wxEmptyString);
+    if ( !filename.empty() )
+    {
+        if ( !image.LoadFile(filename) )
+        {
+            wxLogError("Couldn't load image from '%s'.", filename);
 
-   
+            return wxEmptyString;
+        }
+    }
+#endif // wxUSE_FILEDLG
+
+    return filename;
+}
+

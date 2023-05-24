@@ -10,7 +10,7 @@
 
 class PPMPixel{
     public:
-        unsigned char red = 0,green = 0,blue = 0; // int between 0 and 255
+        unsigned char red,green,blue; // int between 0 and 255
         std::string toString();
         std::string toStringBGR();
         bool operator==(PPMPixel pix);

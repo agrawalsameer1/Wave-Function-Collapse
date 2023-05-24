@@ -1,9 +1,14 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <cmath>
 #include "../include/WFC.h"
 #include "../include/PPM.h"
 #include "../include/Queue.h"
+#include "../include/Structures.h"
+
+#define QUEUE_IMPLEMENTATION // Faster if left on
+//#define USE_SHANNON // Faster if left off
 
 // Hey, pal. Looks like you just collapsed your last wave function *pulls out a coconut gun*
 
@@ -140,6 +145,7 @@ void WFC::generateOutput(int N, int X, int Y) {
             //std::cout << "i love men " << j*(outputX/N)+k << "\n";
             Wave* w = new Wave;
             w->propagated = false;
+            w->id = output.size();
             for (int i = 0; i < patterns.size(); i++) {
                 w->possiblePatterns.push_back(patterns[i]);
             }
@@ -160,19 +166,163 @@ bool WFC::checkPropagation() {
 
 // Propagate the data for an element with a specific id
 int WFC::propagate(int id) {
-    if (checkPropagation()) {
+    /*if (checkPropagation()) {
         return 0;
-    }
-    /*Queue<Wave> queue;
-    queue.push(output[id]);
-    while (queue.size() > 0)
-    {
-        Wave wave
     }*/
-    //Pattern pat = output[id].possiblePatterns[it];
-    //std::cout << "size of propagated: " << output[id].possiblePatterns[0].N << "\n";
+
+
     int NValue = output[0].possiblePatterns[0].N;
     int outputx = outputX/NValue;
+
+    #ifdef QUEUE_IMPLEMENTATION
+    // BFS IMPLEMENTATION WITH QUEUE
+
+    Queue<Wave> queue;
+    queue.push(&(output[id]));
+    while (queue.getSize() > 0)
+    {
+        Wave* wave;
+        wave = queue.top();
+        queue.pop();
+        int currId = wave->id;
+
+        // If we're on the second row or below, we can have a pattern above
+        if (id >= outputx) { 
+            bool canPropagate = false;
+            if (output[id-outputx].propagated == false) {
+                //std::cout << "Entropy of non-propagated top: " << calcEntropy(id-outputx) << "\n";
+                int i = 0;
+                while (i < output[id - outputx].possiblePatterns.size()) {
+                    bool possible = false;
+                    for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                        //std::cout << id << "\n";
+                        Pattern pat = output[id].possiblePatterns[it];
+                        //std::cout << pat.N << "\n";
+                        LinkedList* possibles = adjacencyRules[0].get(&pat); // Get all possible above patterns for the Wave we just collapsed
+                        //std::cout << "length of possible patterns: " << possibles->getLength() << "\n";
+                        if (possibles->contains(output[id - outputx].possiblePatterns[i])) {
+                            possible = true;
+                        }
+                    }
+                    if (!(possible)) {
+                        //std::cout << "original size: " << output[id-outputx].possiblePatterns.size() << "\n";
+                        output[id - outputx].possiblePatterns.erase(output[id - outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be above the one we just collapsed
+                        canPropagate = true;
+                        //std::cout << "final size: " << output[id-outputx].possiblePatterns.size() << "\n";
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                //std::cout << "Entropy of propagated top: " << calcEntropy(id-outputx) << "\n";
+                output[id - outputx].propagated = true;
+            }
+            int newID = id - outputX;
+            if (canPropagate) queue.push(&(output[newID]));
+        }
+
+
+        // If we're at least one tile along a row, we can have a pattern to the left
+        if ((id % outputx) > 0) {
+            bool canPropagate = false;
+            if (output[id-1].propagated == false) {
+                int i = 0;
+                //std::cout << "Entropy of non-propagated left: " << calcEntropy(id-1) << "\n";
+                while (i < output[id-1].possiblePatterns.size()) {
+                    bool possible = false;
+                    for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                        Pattern pat = output[id].possiblePatterns[it];
+                        LinkedList* possibles = adjacencyRules[1].get(&pat); // Get all possible patterns to the left of the pattern we just collapsed
+                        if (possibles->contains(output[id - 1].possiblePatterns[i])) {
+                            possible = true;
+                        }
+                    }
+                    if (!(possible)) {
+                        output[id - 1].possiblePatterns.erase(output[id-1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the left of the one we just collapsed
+                        canPropagate = true;
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                output[id - 1].propagated = true;
+                //std::cout << "Entropy of propagated left: " << calcEntropy(id-1) << "\n";
+            }
+            int newID = id - 1;
+            if (canPropagate) queue.push(&(output[newID]));
+        }
+
+
+
+        // If we're at least one tile before the end of a row, we can have a pattern to the right
+        if (id % (outputx - 1) > 0) {
+            bool canPropagate = false;
+            if (output[id+1].propagated == false) {
+                int i = 0;
+                //std::cout << "Entropy of non-propagated right: " << calcEntropy(id+1) << "\n";
+                while (i < output[id + 1].possiblePatterns.size()) {
+                    bool possible = false;
+                    for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                    Pattern pat = output[id].possiblePatterns[it];
+                        LinkedList* possibles = adjacencyRules[2].get(&pat); // Get all possible patterns to the right of the pattern we just collapsed
+                        if (possibles->contains(output[id + 1].possiblePatterns[i])) {
+                            possible = true;
+                        }
+                    }
+                    if (!(possible)) {
+                        output[id+1].possiblePatterns.erase(output[id + 1].possiblePatterns.begin() + i); // Delete all patterns that can't be to the right of the one we just collapsed
+                        canPropagate = true;
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                //std::cout << "Entropy of propagated right: " << calcEntropy(id+1) << "\n";
+                output[id+1].propagated = true;
+            }
+            int newID = id+1;
+            if (canPropagate) queue.push(&(output[newID]));
+        }
+
+
+
+
+        // If we're at least one row before the end, we can have a pattern below
+        if (id < (output.size()-outputx)) {
+            bool canPropagate = false;
+            if (output[id+outputx].propagated == false) {
+                int i = 0;
+                //std::cout << "Entropy of non-propagated bottom: " << calcEntropy(id+outputx) << "\n";
+                while (i < output[id + outputx].possiblePatterns.size()) {
+                    bool possible = false;
+                    for (int it = 0; it < output[id].possiblePatterns.size(); it++) {
+                        Pattern pat = output[id].possiblePatterns[it];
+                        LinkedList* possibles = adjacencyRules[3].get(&pat); // Get all possible below patterns for the pattern we just collapsed
+                        if (possibles->contains(output[id + outputx].possiblePatterns[i])) {
+                            possible = true;
+                        }
+                    }
+                    if (!(possible)) {
+                        output[id + outputx].possiblePatterns.erase(output[id + outputx].possiblePatterns.begin() + i); // Delete all patterns that can't be below the one we just collapsed
+                        canPropagate = true;
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                output[id+outputx].propagated = true;
+                //std::cout << "Entropy of propagated bottom: " << calcEntropy(id+outputx) << "\n";
+            }
+            int newID = id+outputx;
+            if (canPropagate) queue.push(&(output[newID]));
+        }
+        
+    }
+
+    #else
+    // BFS IMPLEMENTATION WITH RECURSION
+
+    // DONE
     if (id >= outputx) { // If we're on the second row or below, we can have a pattern above
         if (output[id-outputx].propagated == false) {
             //std::cout << "Entropy of non-propagated top: " << calcEntropy(id-outputx) << "\n";
@@ -183,7 +333,7 @@ int WFC::propagate(int id) {
                     //std::cout << id << "\n";
                     Pattern pat = output[id].possiblePatterns[it];
                     //std::cout << pat.N << "\n";
-                    LinkedList* possibles = adjacencyRules[0].get(&pat); // Get all possible above patterns for the pattern we just collapsed
+                    LinkedList* possibles = adjacencyRules[0].get(&pat); // Get all possible above patterns for the Wave we just collapsed
                     //std::cout << "length of possible patterns: " << possibles->getLength() << "\n";
                     if (possibles->contains(output[id - outputx].possiblePatterns[i])) {
                         possible = true;
@@ -205,6 +355,7 @@ int WFC::propagate(int id) {
         return propagate(newID);
     }
 
+    //DONE
     if ((id % outputx) > 0) { // If we're at least one tile along a row, we can have a pattern to the left
         if (output[id-1].propagated == false) {
             int i = 0;
@@ -232,6 +383,7 @@ int WFC::propagate(int id) {
         return propagate(newID);
     }
 
+    //DONE
     if (id % (outputx - 1) > 0) { // If we're at least one tile before the end of a row, we can have a pattern to the right
         if (output[id+1].propagated == false) {
             int i = 0;
@@ -285,6 +437,8 @@ int WFC::propagate(int id) {
         int newID = id+outputx;
         return propagate(newID);
     }
+
+    #endif
 }
 
 int WFC::observe()
@@ -298,6 +452,16 @@ int WFC::observe()
     int smallestLength = output[choice2].possiblePatterns.size();
     int smallestId = choice2;
 
+    #ifdef USE_SHANNON
+    // Search for the Wave with the lowest Shannon entropy (if there are multiple, pick the first one in the vector of Waves) defined by calcShannonEntropy()
+    double minEntropy = calcShannonEntropy(0);
+    for (int i = 1; i < output.size(); i++) {
+        if (calcShannonEntropy(i) < minEntropy && output[i].possiblePatterns.size() > 1) {
+            smallestId = i;
+        }
+    }
+
+    #else
     // Search for the Wave with the lowest entropy (if there are multiple, pick the first one in the vector of Waves) defined by the number of possible Patterns it can be
     for (int i = 0; i < output.size(); i++) {
         if (output[i].possiblePatterns.size() < smallestLength && output[i].possiblePatterns.size() > 1) {
@@ -306,6 +470,7 @@ int WFC::observe()
         }
     }
     //std::cout << "done with obserev2!\n";
+    #endif
 
     // Pick a random Pattern index
     std::random_device rd2; 
@@ -352,6 +517,27 @@ int WFC::maxEntropy() {
     return maxEntropy;
 }
 
+double WFC::calcShannonEntropy(int id)
+{
+    std::vector<PPMImage> found;
+    double ent = 0;
+    int n = output[id].possiblePatterns.size();
+    for (int j = 0; j < n; j++) {
+        if (std::find(found.begin(), found.end(), output[id].possiblePatterns[j].pixels) == found.end()) {
+            double count = 0;
+            for (int i = 0; i < n; i++)
+            {
+                if (output[id].possiblePatterns[i].pixels == output[id].possiblePatterns[j].pixels) count++;
+            }
+            double p = count / n;
+            ent += log2(p) * p; // equation for Shannon entropy heuristic
+            found.push_back(output[id].possiblePatterns[j].pixels);
+        }
+    }
+    ent *= -1;
+    return ent;
+}
+
 bool WFC::completed() {
     for (int i = 0; i < output.size(); i++) {
         if (calcEntropy(i) > 1) {
@@ -382,6 +568,7 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
     ruleGeneration(input, N); // create the adjacency rules
     std::cout << "Reached here!\n";
     int interations = 0;
+    int tries = 1;
     while (contradicts) {        
         // Set up the image
         // Alternatively, if there is a contradiction, this works to reset the output and try again
@@ -400,17 +587,20 @@ PPMImage WFC::collapse(PPMImage* input, int N, int outputX, int outputY) {
             contradicts = contradiction(); // Check for contradictions (if one or more Waves are impossible to collapse)
             if (contradicts) {
                 //std::cout << "bad\n";
+                interations = 0;
+                tries++;
                 break; // start over...
 
             }
             complete = completed(); // check if everything is collapsed
             //std::cout << "Am i complete: " << complete << "\n";
             interations++;
+            std::cout << interations << '\n';
         }
     }
     // Create .ppm image and return
     std::cout << "reached here3?\n";
-    std::cout << "took " << interations << " iterations\n";
+    std::cout << "took " << interations << " iterations after " << tries << " tries\n";
     PPMImage returned = buildOutput();
     return returned;
 }

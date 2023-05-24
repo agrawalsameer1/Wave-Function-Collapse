@@ -46,6 +46,11 @@ IMAGE_CXXFLAGS = $(WX_CPPFLAGS) -D__WX$(TOOLKIT)__ $(__WXUNIV_DEFINE_p) \
 	$(WX_CXXFLAGS) $(SAMPLES_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 IMAGE_OBJECTS =  \
 	ImageExpansionDialog.o \
+	HashTable.o \
+	PPM.o \
+	WFC_Backend.o \
+	LinkedList.o \
+	Queue.o \
 	WFC_WFC.o \
 	$(__WFC___win32rc)
 
@@ -99,7 +104,7 @@ install-strip: install
 
 clean: 
 	rm -rf ./.deps ./.pch
-	rm -f ./*.o
+	rm -f ./WFC_WFC.o ImageExpansionDialog.o
 	rm -f WFC$(EXEEXT)
 	rm -rf WFC.app
 
