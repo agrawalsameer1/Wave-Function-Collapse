@@ -130,7 +130,7 @@ bool PPMImage::operator==(PPMImage img) {
     else {
         for (int i = 0; i < img.y; i++) {
             for (int j = 0; j < img.x; j++) {
-                if (!(img.pixelAt(j,i) == pixelAt(j,i))) {
+                if (!(img.pixelAt(j,i) == pixelAt(j,i))) {//any singular pixel is unequal
                     return false;
                 }
             }

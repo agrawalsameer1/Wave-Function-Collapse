@@ -25,9 +25,8 @@ LinkedList::LinkedList(Pattern* pat) {
     length = 1;
 }
 
-LinkedList::LinkedList(node* heady) {
-    head = heady;
-    node* traverser = heady;
+LinkedList::LinkedList(node* inHead) {
+    node* traverser = inHead;
     length = 0;
     while (traverser != nullptr) {
         length++;
@@ -38,7 +37,6 @@ LinkedList::LinkedList(node* heady) {
 void LinkedList::operator=(LinkedList l) {
     node* traverser = l.head;
     node* traverser2 = head;
-    length = l.length;
 
     while (traverser != nullptr) {
         traverser2->pat = traverser->pat;
@@ -75,9 +73,6 @@ void LinkedList::insert(node* newElement )
         //std::cout << current->next << "\n";
     }
     length++;
-  // * * * * * * * * * * *
-  // Your code goes here
-  // * * * * * * * * * * *
 }
 
 // Removes an item from the list by item key.
@@ -109,10 +104,8 @@ bool LinkedList::contains(Pattern pat) {
     else {
         return true;
     }
+
 }
-  // * * * * * * * * * * *
-  // Your code goes here
-  // * * * * * * * * * * *
 
 // Searches for an item by its key.
 // Returns a reference to first match.
@@ -129,9 +122,7 @@ node* LinkedList::get(Pattern pat)
     else {
         return nullptr;
     }
-  // * * * * * * * * * * *
-  // Your code goes here
-  // * * * * * * * * * * *
+
 }
 
 // Returns the length of the list.
@@ -150,11 +141,5 @@ LinkedList::~LinkedList()
         traverser2 = traverser->next;
         delete traverser;
     }
-  // * * * * * * * * * * *
-  // Your code goes here
-  // * * * * * * * * * * *
-}
 
-//*****************************************************************
-// End of File
-//*****************************************************************
+}

@@ -20,7 +20,7 @@ void WFC::ruleGeneration(PPMImage* img, int N) {
         for (int j = 0; j < img->x; j+=N) {
             Pattern* pattern = (Pattern*)(malloc(sizeof(Pattern)));
             //Pattern* pattern = new Pattern;
-            pattern->id = (((i*img->x)/(N*N))+(j/N)); // i have no clue what this means but we give every Pattern an id i guess??
+            pattern->id = (((i*img->x)/(N*N))+(j/N)); // assign each patterna unique id based on its position
             std::cout << pattern->id << std::endl;
             // write NxN section of image to the Pattern
             pattern->N = N;
@@ -33,7 +33,7 @@ void WFC::ruleGeneration(PPMImage* img, int N) {
             }
             std::cout << "we win these\n";
             pattern->pixels = pixs;
-            std::cout << pattern->pixels << "\n";
+            std::cout << pixs << "\n";
             patterns.push_back(*pattern);
         }
     }

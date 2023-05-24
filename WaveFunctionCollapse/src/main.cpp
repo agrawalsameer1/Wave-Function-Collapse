@@ -36,5 +36,6 @@ int main() {
     system(command.c_str());
     std::cout << "Input image dimensions: " << input->y << "x" << input->x << '\n';
     std::cout << "Using an N-value of " << N << " with output dimensions of " << Y << "x" << X << '\n';
+    std::cout << "Running...\n";
     //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 }
